@@ -13,7 +13,6 @@
         .reth-title-underline { height: 2px; width: 100px; background-color: #2a2a2a; margin-top: -10px; }
         .reth-subtitle { font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 15px; }
         
-        /* Card Design */
         .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer; }
         .reth-card:hover { border-color: #333333; transform: translateY(-3px); }
         
@@ -22,24 +21,16 @@
         .status-dot.working { background-color: #22c55e; }
         .status-dot.patched { background-color: #ef4444; }
         
-        /* Button Styles */
-        .btn-copy-main { background-color: #ffffff; color: #000000; text-align: center; padding: 12px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-copy-main { background-color: #ffffff; color: #000000; text-align: center; padding: 12px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; cursor: pointer; }
         .btn-copy-main:hover { background-color: #e5e5e5; }
-
         .btn-view-web { background-color: transparent; color: #ffffff; text-align: center; padding: 11px 0; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid #222; transition: 0.2s; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
-        .btn-view-web:hover { background-color: #111; border-color: #444; }
 
         .reth-search { background: #050505; border: 1px solid #111111; border-radius: 15px; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 24px; outline: none; }
-        
-        /* Filter Styles */
         .filter-btn { padding: 8px 20px; border-radius: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid #111; transition: 0.2s; color: #555; cursor: pointer; }
         .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
 
-        /* Modal Styles */
-        #scriptModal { transition: opacity 0.3s ease; }
         .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 24px; max-width: 600px; width: 95%; max-height: 85vh; overflow-y: auto; }
         .script-box { background: #000; border: 1px solid #111; border-radius: 12px; padding: 15px; font-family: monospace; font-size: 12px; color: #666; white-space: pre-wrap; word-break: break-all; margin-top: 15px; max-height: 250px; overflow-y: auto; }
-
         .loader { width: 20px; height: 20px; border: 2px solid #111111; border-top: 2px solid #ffffff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -69,20 +60,19 @@
         <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
 
-    <div id="scriptModal" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden opacity-0">
+    <div id="scriptModal" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="modal-content p-8 relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-zinc-600 hover:text-white font-bold uppercase text-[10px] tracking-widest transition">Close [X]</button>
-            
-            <h2 id="modalTitle" class="text-xl font-black uppercase italic mb-1 tracking-tighter">Script Name</h2>
-            <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-8">Game Name</p>
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-zinc-600 hover:text-white font-bold uppercase text-[10px] tracking-widest">Close [X]</button>
+            <h2 id="modalTitle" class="text-xl font-black uppercase italic mb-1 tracking-tighter"></h2>
+            <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-8"></p>
             
             <div class="flex gap-3 mb-8">
-                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-1 !mb-0">COPY SCRIPT</div>
+                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-1">COPY SCRIPT</div>
                 <a href="#" id="modalWebBtn" target="_blank" class="btn-view-web flex-1">VIEW WEB</a>
             </div>
 
             <div class="space-y-3">
-                <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Source Code / Loadstring:</p>
+                <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Source Code:</p>
                 <div id="modalScript" class="script-box"></div>
             </div>
         </div>
@@ -93,7 +83,6 @@
         const searchInput = document.getElementById('searchInput');
         const loading = document.getElementById('loading');
         const modal = document.getElementById('scriptModal');
-        
         let scriptsData = [];
         let currentFilter = 'all';
 
@@ -110,10 +99,74 @@
                     applyFilter();
                 }
             } catch (err) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">CONNECTION ERROR.</p>';
+                scriptGrid.innerHTML = '<p class="text-center text-[10px] uppercase">Connection Error</p>';
             } finally {
                 loading.classList.add('hidden');
             }
+        }
+
+        function renderScripts(scripts) {
+            const placeholder = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
+            
+            scriptGrid.innerHTML = scripts.map((s) => {
+                const originalIndex = scriptsData.findIndex(item => item._id === s._id);
+                
+                // ตรวจสอบและสร้าง Full URL สำหรับรูปภาพจากฟิลด์ "image"
+                let displayImg = placeholder;
+                if (s.image && !s.image.includes('http')) {
+                    displayImg = `https://scriptblox.com${s.image}`; // ต่อ URL หลัก
+                } else if (s.game.imageUrl) {
+                    displayImg = s.game.imageUrl;
+                }
+
+                return `
+                <div class="reth-card p-5 group" onclick="openModal(${originalIndex})">
+                    <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden">
+                        <img src="${displayImg}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='${placeholder}'">
+                        <div class="absolute top-3 right-3 status-badge backdrop-blur-sm">
+                            <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
+                            ${s.isPatched ? 'Patched' : 'Working'}
+                        </div>
+                    </div>
+                    <div class="btn-copy-main mb-4" onclick="event.stopPropagation(); copyByIndex(${originalIndex}, this)">COPY LOADSTRING</div>
+                    <div class="flex-grow">
+                        <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
+                        <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game.name}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openModal(index) {
+            const s = scriptsData[index];
+            document.getElementById('modalTitle').innerText = s.title;
+            document.getElementById('modalGame').innerText = s.game.name;
+            document.getElementById('modalScript').innerText = s.script || "-- No code";
+            document.getElementById('modalWebBtn').href = `https://scriptblox.com/script/${s.slug}`;
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('opacity-100');
+            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+        }
+
+        function copyFromModal() {
+            const code = document.getElementById('modalScript').innerText;
+            const btn = document.getElementById('modalCopyBtn');
+            navigator.clipboard.writeText(code).then(() => {
+                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
+                setTimeout(() => { btn.innerText = "COPY SCRIPT"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000"; }, 1500);
+            });
+        }
+
+        function copyByIndex(index, btn) {
+            navigator.clipboard.writeText(scriptsData[index].script).then(() => {
+                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
+                setTimeout(() => { btn.innerText = "COPY LOADSTRING"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000"; }, 1500);
+            });
         }
 
         function setFilter(type, btn) {
@@ -131,87 +184,6 @@
             renderScripts(filtered);
         }
 
-        function renderScripts(scripts) {
-            if (!scripts || scripts.length === 0) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-800 font-bold text-[10px] py-20 uppercase tracking-[0.3em]">No results found</p>';
-                return;
-            }
-
-            const placeholderImg = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
-
-            scriptGrid.innerHTML = scripts.map((s) => {
-                const originalIndex = scriptsData.findIndex(item => item._id === s._id);
-                return `
-                <div class="reth-card p-5 group" onclick="openModal(${originalIndex})">
-                    <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden">
-                        <img src="${s.game.imageUrl || placeholderImg}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='${placeholderImg}'">
-                        <div class="absolute top-3 right-3 status-badge backdrop-blur-sm">
-                            <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
-                            ${s.isPatched ? 'Patched' : 'Working'}
-                        </div>
-                    </div>
-                    <div class="btn-copy-main mb-4" onclick="event.stopPropagation(); copyByIndex(${originalIndex}, this)">COPY LOADSTRING</div>
-                    <div class="flex-grow">
-                        <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
-                        <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game.name}</p>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        // Modal Logic
-        let currentModalScript = "";
-
-        function openModal(index) {
-            const s = scriptsData[index];
-            currentModalScript = s.script || "-- No code available";
-            
-            document.getElementById('modalTitle').innerText = s.title;
-            document.getElementById('modalGame').innerText = s.game.name;
-            document.getElementById('modalScript').innerText = currentModalScript;
-            document.getElementById('modalWebBtn').href = `https://scriptblox.com/script/${s.slug}`;
-            
-            modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.add('opacity-100'); }, 10);
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            modal.classList.remove('opacity-100');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
-            document.body.style.overflow = 'auto';
-        }
-
-        function copyFromModal() {
-            const btn = document.getElementById('modalCopyBtn');
-            navigator.clipboard.writeText(currentModalScript).then(() => {
-                btn.innerText = "COPIED!";
-                btn.style.backgroundColor = "#22c55e";
-                btn.style.color = "#fff";
-                setTimeout(() => {
-                    btn.innerText = "COPY SCRIPT";
-                    btn.style.backgroundColor = "#ffffff";
-                    btn.style.color = "#000000";
-                }, 1500);
-            });
-        }
-
-        function copyByIndex(index, btn) {
-            const scriptText = scriptsData[index].script;
-            navigator.clipboard.writeText(scriptText).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = "COPIED!";
-                btn.style.backgroundColor = "#22c55e";
-                btn.style.color = "#fff";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.backgroundColor = "#ffffff";
-                    btn.style.color = "#000000";
-                }, 1500);
-            });
-        }
-
-        // Search Debounce
         let typingTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(typingTimer);
