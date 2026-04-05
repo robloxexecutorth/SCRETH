@@ -13,6 +13,7 @@
         .reth-title-underline { height: 2px; width: 100px; background-color: #2a2a2a; margin-top: -10px; }
         .reth-subtitle { font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 15px; }
         
+        /* Card & UI Component Styles */
         .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer; }
         .reth-card:hover { border-color: #333333; transform: translateY(-3px); }
         
@@ -20,19 +21,24 @@
         .status-dot { height: 6px; width: 6px; border-radius: 50%; }
         .status-dot.working { background-color: #22c55e; }
         .status-dot.patched { background-color: #ef4444; }
+
+        /* Key Badges */
+        .key-tag { position: absolute; top: 12px; left: 12px; font-size: 8px; font-weight: 900; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.05em; backdrop-blur-md; z-index: 10; }
+        .key-required { background-color: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .keyless { background-color: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
         
         .btn-copy-main { background-color: #ffffff; color: #000000; text-align: center; padding: 12px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; cursor: pointer; }
         .btn-copy-main:hover { background-color: #e5e5e5; }
+        
         .btn-view-web { background-color: transparent; color: #ffffff; text-align: center; padding: 11px 0; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid #222; transition: 0.2s; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
 
         .reth-search { background: #050505; border: 1px solid #111111; border-radius: 15px; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 24px; outline: none; }
         .filter-btn { padding: 8px 20px; border-radius: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid #111; transition: 0.2s; color: #555; cursor: pointer; }
         .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
 
+        /* Modal Layout */
         .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 24px; max-width: 600px; width: 95%; max-height: 85vh; overflow-y: auto; }
         .script-box { background: #000; border: 1px solid #111; border-radius: 12px; padding: 15px; font-family: monospace; font-size: 12px; color: #666; white-space: pre-wrap; word-break: break-all; margin-top: 15px; max-height: 250px; overflow-y: auto; }
-        .loader { width: 20px; height: 20px; border: 2px solid #111111; border-top: 2px solid #ffffff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="p-6 md:p-16">
@@ -45,15 +51,11 @@
         </header>
 
         <div class="max-w-2xl mx-auto mb-20">
-            <div class="relative mb-6">
-                <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="reth-search">
-                <div id="loading" class="hidden absolute right-6 top-6"><div class="loader"></div></div>
-            </div>
-            <div class="flex flex-wrap justify-center gap-3">
+            <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="reth-search">
+            <div class="flex flex-wrap justify-center gap-3 mt-6">
                 <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
                 <button class="filter-btn" onclick="setFilter('working', this)">Working</button>
                 <button class="filter-btn" onclick="setFilter('patched', this)">Patched</button>
-                <button class="filter-btn" onclick="setFilter('verified', this)">Verified</button>
             </div>
         </div>
 
@@ -62,7 +64,7 @@
 
     <div id="scriptModal" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="modal-content p-8 relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-zinc-600 hover:text-white font-bold uppercase text-[10px] tracking-widest">Close [X]</button>
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-zinc-600 hover:text-white font-bold uppercase text-[10px]">Close [X]</button>
             <h2 id="modalTitle" class="text-xl font-black uppercase italic mb-1 tracking-tighter"></h2>
             <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-8"></p>
             
@@ -80,55 +82,45 @@
 
     <script>
         const scriptGrid = document.getElementById('scriptGrid');
-        const searchInput = document.getElementById('searchInput');
-        const loading = document.getElementById('loading');
         const modal = document.getElementById('scriptModal');
         let scriptsData = [];
-        let currentFilter = 'all';
 
         async function fetchScripts(query = "") {
-            loading.classList.remove('hidden');
             const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=50`;
             const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`;
-
             try {
                 const response = await fetch(proxy);
                 const data = await response.json();
                 if (data && data.result) {
                     scriptsData = data.result.scripts;
-                    applyFilter();
+                    renderScripts(scriptsData);
                 }
-            } catch (err) {
-                scriptGrid.innerHTML = '<p class="text-center text-[10px] uppercase">Connection Error</p>';
-            } finally {
-                loading.classList.add('hidden');
-            }
+            } catch (err) { console.error("Fetch Error"); }
         }
 
         function renderScripts(scripts) {
             const placeholder = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
-            
-            scriptGrid.innerHTML = scripts.map((s) => {
-                const originalIndex = scriptsData.findIndex(item => item._id === s._id);
-                
-                // ตรวจสอบและสร้าง Full URL สำหรับรูปภาพจากฟิลด์ "image"
+            scriptGrid.innerHTML = scripts.map((s, idx) => {
+                // Image Fix
                 let displayImg = placeholder;
-                if (s.image && !s.image.includes('http')) {
-                    displayImg = `https://scriptblox.com${s.image}`; // ต่อ URL หลัก
-                } else if (s.game.imageUrl) {
-                    displayImg = s.game.imageUrl;
-                }
+                if (s.image && !s.image.includes('http')) displayImg = `https://scriptblox.com${s.image}`;
+                else if (s.game.imageUrl && s.game.imageUrl.includes('http')) displayImg = s.game.imageUrl;
+
+                // Key System Detection
+                const keyClass = s.key ? "key-required" : "keyless";
+                const keyText = s.key ? "Key Required" : "Keyless";
 
                 return `
-                <div class="reth-card p-5 group" onclick="openModal(${originalIndex})">
+                <div class="reth-card p-5 group" onclick="openModal(${idx})">
                     <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden">
+                        <div class="key-tag ${keyClass}">${keyText}</div>
                         <img src="${displayImg}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='${placeholder}'">
                         <div class="absolute top-3 right-3 status-badge backdrop-blur-sm">
                             <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
                             ${s.isPatched ? 'Patched' : 'Working'}
                         </div>
                     </div>
-                    <div class="btn-copy-main mb-4" onclick="event.stopPropagation(); copyByIndex(${originalIndex}, this)">COPY LOADSTRING</div>
+                    <div class="btn-copy-main mb-4" onclick="event.stopPropagation(); copyByIndex(${idx}, this)">COPY LOADSTRING</div>
                     <div class="flex-grow">
                         <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
                         <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game.name}</p>
@@ -162,33 +154,12 @@
             });
         }
 
-        function copyByIndex(index, btn) {
-            navigator.clipboard.writeText(scriptsData[index].script).then(() => {
+        function copyByIndex(idx, btn) {
+            navigator.clipboard.writeText(scriptsData[idx].script).then(() => {
                 btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
                 setTimeout(() => { btn.innerText = "COPY LOADSTRING"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000"; }, 1500);
             });
         }
-
-        function setFilter(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = type;
-            applyFilter();
-        }
-
-        function applyFilter() {
-            let filtered = scriptsData;
-            if (currentFilter === 'working') filtered = scriptsData.filter(s => !s.isPatched);
-            else if (currentFilter === 'patched') filtered = scriptsData.filter(s => s.isPatched);
-            else if (currentFilter === 'verified') filtered = scriptsData.filter(s => s.verified);
-            renderScripts(filtered);
-        }
-
-        let typingTimer;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => fetchScripts(searchInput.value), 400);
-        });
 
         fetchScripts("");
     </script>
