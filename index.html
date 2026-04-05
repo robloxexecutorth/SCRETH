@@ -4,52 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RETH OFFICIAL — SCRIPT HUB</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        body { background-color: #000000; color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; }
+        /* การตั้งค่าพื้นฐาน */
+        body { 
+            background-color: #000000; 
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0px; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        /* ปุ่ม Discord มุมขวาบน */
+        .discord-button-top { 
+            position: fixed; 
+            top: 25px; 
+            right: 25px; 
+            background-color: #5865F2; 
+            color: #ffffff; 
+            padding: 12px 24px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            z-index: 100; 
+            text-decoration: none; 
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5); 
+        }
+
+        /* ช่องค้นหา */
+        .search-field { 
+            background-color: #050505; 
+            border: 1px solid #111111; 
+            border-radius: 20px; 
+            color: #ffffff; 
+            font-size: 13px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            width: 100%; 
+            padding: 22px 30px; 
+            outline: none; 
+        }
+
+        /* การ์ดสคริปต์ */
+        .script-card { 
+            background-color: #050505; 
+            border: 1px solid #111111; 
+            border-radius: 24px; 
+            padding: 24px; 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            cursor: pointer; 
+            transition: 0.2s ease;
+        }
+        .script-card:hover {
+            border-color: #333333;
+            transform: translateY(-5px);
+        }
+
+        /* ส่วนแสดงรูปภาพ */
+        .image-container { 
+            position: relative; 
+            aspect-ratio: 16 / 9; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            margin-bottom: 15px; 
+            background-color: #000000; 
+        }
+        .image-display { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            opacity: 1; 
+        }
+
+        /* ป้าย Key/Keyless */
+        .key-badge { 
+            position: absolute; 
+            top: 12px; 
+            left: 12px;
+            font-size: 9px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            padding: 5px 12px; 
+            border-radius: 6px; 
+            z-index: 10; 
+        }
+        .key-badge-green { background-color: #15803d; color: #ffffff; } 
+        .key-badge-yellow { background-color: #a16207; color: #ffffff; }
         
-        .discord-btn { position: fixed; top: 25px; right: 25px; background: #5865F2; color: white; padding: 12px 24px; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; z-index: 100; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        /* 🔥 ปรับแต่งสถานะ Working ให้เป็น Liquid Glass */
+        .status-glass-overlay { 
+            position: absolute; 
+            top: 12px; 
+            right: 12px; 
+            font-size: 11px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            
+            /* คุณสมบัติ Liquid Glass */
+            background-color: rgba(255, 255, 255, 0.05); /* พื้นหลังขาวจางมากๆ */
+            backdrop-filter: blur(10px);               /* เอฟเฟกต์กระจกฝ้า */
+            -webkit-backdrop-filter: blur(10px);        /* สำหรับ Safari */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* ขอบกระจกบางๆ */
+            
+            padding: 6px 12px; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
 
-        .reth-search { background: #050505; border: 1px solid #111; border-radius: 20px; color: #ffffff; font-size: 13px; font-weight: 700; text-transform: uppercase; width: 100%; padding: 22px 30px; outline: none; }
+        /* จุดไฟสถานะภายในกระจก */
+        .status-light-dot { 
+            width: 7px; 
+            height: 7px; 
+            border-radius: 50%; 
+        }
+        .light-green { background-color: #22c55e; box-shadow: 0px 0px 10px #22c55e; }
+        .light-red { background-color: #ef4444; box-shadow: 0px 0px 10px #ef4444; }
 
-        /* Card - ปรับกลับมาให้ทึบและชัดเจน */
-        .reth-card { background: #050505; border: 1px solid #111; border-radius: 24px; padding: 24px; transition: 0.2s; height: 100%; display: flex; flex-direction: column; cursor: pointer; }
-        .reth-card:hover { border-color: #333; background: #080808; }
+        /* สถิติตัวเลข */
+        .stats-display-row { 
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 15px; 
+            font-size: 10px; 
+            font-weight: 800; 
+            color: #666666; 
+        }
+        .color-like { color: #4ade80; }
+        .color-dislike { color: #f87171; }
 
-        /* Image - เอา Opacity ออกเพื่อให้ภาพชัด 100% */
-        .thumb-container { position: relative; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; margin-bottom: 15px; background: #000; }
-        .thumb-img { width: 100%; height: 100%; object-fit: cover; opacity: 1 !important; } /* ชัดเจน 100% */
+        /* ปุ่ม COPY */
+        .button-copy-action { 
+            background-color: #ffffff; 
+            color: #000000; 
+            text-align: center; 
+            padding: 14px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            margin-bottom: 15px; 
+            cursor: pointer; 
+        }
 
-        /* Tags - ปรับสีให้ทึบ ไม่โปร่งแสง */
-        .tag-common { position: absolute; top: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 5px 12px; border-radius: 6px; z-index: 10; }
-        .tag-keyless { left: 12px; background: #15803d; color: #fff; } 
-        .tag-key { left: 12px; background: #a16207; color: #fff; }
-        
-        /* Working Status - ปรับให้เด่นชัดบนรูป */
-        .tag-status { position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; background: rgba(0,0,0,0.8); padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 6px; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; }
-        .dot-working { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
-        .dot-patched { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-
-        /* Stats & Buttons */
-        .stats-row { display: flex; gap: 12px; margin-bottom: 15px; font-size: 10px; font-weight: 800; color: #666; }
-        .stat-like { color: #4ade80; }
-        .stat-dislike { color: #f87171; }
-
-        .btn-copy { background: #ffffff; color: #000; text-align: center; padding: 14px; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; cursor: pointer; }
-        
-        .script-title { font-size: 15px; font-weight: 900; text-transform: uppercase; color: #fff; line-height: 1.2; margin-bottom: 4px; }
-        .game-title { font-size: 9px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.1em; }
-
-        /* Modal */
-        .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 24px; max-width: 600px; width: 95%; padding: 40px; position: relative; }
-        .script-box { background: #000; border: 1px solid #111; border-radius: 12px; padding: 20px; font-family: monospace; font-size: 12px; color: #555; white-space: pre-wrap; margin-top: 20px; }
+        .main-script-title { font-size: 15px; font-weight: 900; text-transform: uppercase; color: #ffffff; line-height: 1.2; margin-bottom: 4px; }
+        .sub-game-title { font-size: 9px; font-weight: 700; color: #444444; text-transform: uppercase; }
     </style>
 </head>
 <body class="p-6 md:p-16">
 
-    <a href="https://discord.gg/Yp2bXVvU9B" target="_blank" class="discord-btn">DISCORD</a>
+    <a href="https://discord.gg/Yp2bXVvU9B" target="_blank" class="discord-button-top">DISCORD</a>
 
     <div class="max-w-7xl mx-auto">
         <header class="py-16 text-center">
@@ -58,120 +172,167 @@
         </header>
 
         <div class="max-w-2xl mx-auto mb-16">
-            <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="reth-search">
+            <input type="text" id="scriptSearchInput" placeholder="SEARCH SCRIPTS..." class="search-field">
         </div>
 
-        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        <div id="scriptContainerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
     </div>
 
-    <div id="scriptModal" class="fixed inset-0 bg-black/98 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="modal-content">
-            <button onclick="closeModal()" class="absolute top-6 right-8 text-zinc-600 font-bold text-[10px] uppercase">Close [X]</button>
-            <h2 id="modalTitle" class="text-2xl font-black uppercase italic mb-1"></h2>
-            <div id="modalStats" class="stats-row mb-4"></div>
-            <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase mb-8"></p>
-            
+    <div id="fullDetailModal" class="fixed inset-0 bg-black/98 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-[#080808] border border-[#1a1a1a] rounded-[24px] max-w-[600px] w-[95%] p-10 relative">
+            <button onclick="hideModalNow()" class="absolute top-6 right-8 text-zinc-600 font-bold text-[10px] uppercase">Close [X]</button>
+            <h2 id="modalHeaderTitle" class="text-2xl font-black uppercase italic mb-1"></h2>
+            <div id="modalStatsInfo" class="stats-display-row mb-4"></div>
+            <p id="modalGameInfo" class="text-[10px] text-zinc-600 font-bold uppercase mb-8"></p>
             <div class="flex gap-3 mb-6">
-                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy flex-1 mb-0">COPY SCRIPT</div>
-                <a href="#" id="modalWebBtn" target="_blank" class="border border-zinc-800 text-white text-[10px] font-black uppercase rounded-12 flex items-center justify-center px-8">VIEW WEB</a>
+                <div onclick="copyScriptCode()" id="modalCopyBtn" class="button-copy-action flex-1 mb-0">COPY SCRIPT</div>
+                <a href="#" id="modalWebLink" target="_blank" class="border border-zinc-800 text-white text-[10px] font-black uppercase rounded-[12px] flex items-center justify-center px-8">VIEW WEB</a>
             </div>
-            <div id="modalScript" class="script-box max-h-[250px]"></div>
+            <div id="modalContentBox" class="bg-black border border-[#111111] rounded-[12px] p-5 font-mono text-[12px] text-[#555] whitespace-pre-wrap max-h-[250px] overflow-y-auto"></div>
         </div>
     </div>
 
     <script>
-        const scriptGrid = document.getElementById('scriptGrid');
-        const modal = document.getElementById('scriptModal');
-        let scriptsData = [];
+        var containerGrid = document.getElementById('scriptContainerGrid');
+        var modalWrapper = document.getElementById('fullDetailModal');
+        var scriptsArray = [];
 
-        async function fetchScripts(query = "") {
-            const url = query 
-                ? `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=50`
-                : `https://scriptblox.com/api/script/fetch?page=1&max=50`; 
-            const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`;
+        // ฟังก์ชันดึงข้อมูลแบบเขียนเต็ม
+        async function startFetchingScripts(searchValue) {
+            var finalUrl = "";
+            if (searchValue) {
+                finalUrl = "https://scriptblox.com/api/script/search?q=" + encodeURIComponent(searchValue) + "&max=50";
+            } else {
+                finalUrl = "https://scriptblox.com/api/script/fetch?page=1&max=50";
+            }
+
+            var proxyServer = "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(finalUrl);
+
             try {
-                const res = await fetch(proxy);
-                const data = await res.json();
-                scriptsData = data.result.scripts || data.result.docs || [];
-                render(scriptsData);
-            } catch (e) { console.error("API Error"); }
+                var responseData = await fetch(proxyServer);
+                var resultObject = await responseData.json();
+                
+                if (resultObject.result.scripts) {
+                    scriptsArray = resultObject.result.scripts;
+                } else {
+                    scriptsArray = resultObject.result.docs;
+                }
+                
+                buildScriptCards(scriptsArray);
+            } catch (err) {
+                console.log("Error loading scripts.");
+            }
         }
 
-        const formatNum = (n) => (n || 0).toLocaleString();
+        // ฟังก์ชันสร้างการ์ด HTML แบบไม่ใช้ตัวย่อ
+        function buildScriptCards(dataList) {
+            var finalHtml = "";
+            
+            for (var index = 0; index < dataList.length; index++) {
+                var currentItem = dataList[index];
+                var currentImage = "";
+                
+                if (currentItem.image && !currentItem.image.includes('http')) {
+                    currentImage = "https://scriptblox.com" + currentItem.image;
+                } else {
+                    currentImage = currentItem.game.imageUrl || 'https://via.placeholder.com/400x225/050505/222?text=RETH+HUB';
+                }
 
-        function render(scripts) {
-            scriptGrid.innerHTML = scripts.map((s, i) => {
-                const thumb = s.image && !s.image.includes('http') ? `https://scriptblox.com${s.image}` : (s.game.imageUrl || '');
-                return `
-                <div class="reth-card" onclick="openModal(${i})">
-                    <div class="thumb-container">
-                        <div class="tag-common ${s.key ? 'tag-key' : 'tag-keyless'}">${s.key ? 'KEY' : 'KEYLESS'}</div>
-                        <div class="tag-status">
-                            <span class="dot ${s.isPatched ? 'dot-patched' : 'dot-working'}"></span>
-                            ${s.isPatched ? 'Patched' : 'Working'}
-                        </div>
-                        <img src="${thumb}" class="thumb-img" onerror="this.src='https://via.placeholder.com/400x225/050505/222?text=RETH+HUB'">
-                    </div>
+                finalHtml += '<div class="script-card" onclick="showScriptModal(' + index + ')">';
+                finalHtml += '    <div class="image-container">';
+                
+                // ป้าย Key
+                if (currentItem.key === true) {
+                    finalHtml += '    <div class="key-badge key-badge-yellow">KEY</div>';
+                } else {
+                    finalHtml += '    <div class="key-badge key-badge-green">KEYLESS</div>';
+                }
 
-                    <div class="stats-row">
-                        <span>👁 ${formatNum(s.views)}</span>
-                        <span class="stat-like">👍 ${formatNum(s.likeCount)}</span>
-                        <span class="stat-dislike">👎 ${formatNum(s.dislikeCount)}</span>
-                    </div>
+                // 🔥 ป้ายสถานะแบบ Liquid Glass
+                finalHtml += '        <div class="status-glass-overlay">';
+                if (currentItem.isPatched === true) {
+                    finalHtml += '        <span class="status-light-dot light-red"></span> Patched';
+                } else {
+                    finalHtml += '        <span class="status-light-dot light-green"></span> Working';
+                }
+                finalHtml += '        </div>';
+                
+                finalHtml += '        <img src="' + currentImage + '" class="image-display">';
+                finalHtml += '    </div>';
 
-                    <div class="btn-copy" onclick="event.stopPropagation(); copyIdx(${i}, this)">COPY LOADSTRING</div>
+                finalHtml += '    <div class="stats-display-row">';
+                finalHtml += '        <span>👁 ' + currentItem.views.toLocaleString() + '</span>';
+                finalHtml += '        <span class="color-like">👍 ' + currentItem.likeCount.toLocaleString() + '</span>';
+                finalHtml += '        <span class="color-dislike">👎 ' + currentItem.dislikeCount.toLocaleString() + '</span>';
+                finalHtml += '    </div>';
 
-                    <div class="flex-grow">
-                        <h3 class="script-title truncate">${s.title}</h3>
-                        <p class="game-title truncate">${s.game ? s.game.name : 'UNIVERSAL'}</p>
-                    </div>
-                </div>`;
-            }).join('');
+                finalHtml += '    <div class="button-copy-action" onclick="event.stopPropagation(); copyDirectLoadstring(' + index + ', this)">COPY LOADSTRING</div>';
+
+                finalHtml += '    <div class="flex-grow">';
+                finalHtml += '        <h3 class="main-script-title truncate">' + currentItem.title + '</h3>';
+                finalHtml += '        <p class="sub-game-title truncate">' + (currentItem.game ? currentItem.game.name : "UNIVERSAL") + '</p>';
+                finalHtml += '    </div>';
+                finalHtml += '</div>';
+            }
+
+            containerGrid.innerHTML = finalHtml;
         }
 
-        function openModal(i) {
-            const s = scriptsData[i];
-            document.getElementById('modalTitle').innerText = s.title;
-            document.getElementById('modalGame').innerText = s.game ? s.game.name : 'UNIVERSAL';
-            document.getElementById('modalScript').innerText = s.script;
-            document.getElementById('modalWebBtn').href = `https://scriptblox.com/script/${s.slug}`;
-            document.getElementById('modalStats').innerHTML = `
-                <span>👁 ${formatNum(s.views)} VIEWS</span>
-                <span class="stat-like">👍 ${formatNum(s.likeCount)} LIKES</span>
-                <span class="stat-dislike">👎 ${formatNum(s.dislikeCount)} DISLIKES</span>
-            `;
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('opacity-100'), 10);
+        function showScriptModal(id) {
+            var data = scriptsArray[id];
+            document.getElementById('modalHeaderTitle').innerText = data.title;
+            document.getElementById('modalContentBox').innerText = data.script;
+            document.getElementById('modalWebLink').href = "https://scriptblox.com/script/" + data.slug;
+            document.getElementById('modalGameInfo').innerText = data.game ? data.game.name : "UNIVERSAL";
+            document.getElementById('modalStatsInfo').innerHTML = 
+                '<span>👁 ' + data.views.toLocaleString() + ' VIEWS</span>' +
+                '<span class="color-like">👍 ' + data.likeCount.toLocaleString() + ' LIKES</span>' +
+                '<span class="color-dislike">👎 ' + data.dislikeCount.toLocaleString() + ' DISLIKES</span>';
+
+            modalWrapper.classList.remove('hidden');
+            setTimeout(function() { modalWrapper.classList.add('opacity-100'); }, 10);
             document.body.style.overflow = 'hidden';
         }
 
-        function closeModal() {
-            modal.classList.remove('opacity-100');
-            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+        function hideModalNow() {
+            modalWrapper.classList.remove('opacity-100');
+            setTimeout(function() { modalWrapper.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
         }
 
-        function copyIdx(i, btn) {
-            navigator.clipboard.writeText(scriptsData[i].script).then(() => {
-                btn.innerText = "COPIED!"; btn.style.background = "#22c55e"; btn.style.color = "#fff";
-                setTimeout(() => { btn.innerText = "COPY LOADSTRING"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 1500);
+        function copyDirectLoadstring(id, btn) {
+            var code = scriptsArray[id].script;
+            navigator.clipboard.writeText(code).then(function() {
+                var oldText = btn.innerText;
+                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
+                setTimeout(function() {
+                    btn.innerText = oldText; btn.style.backgroundColor = "#fff"; btn.style.color = "#000";
+                }, 1500);
             });
         }
 
-        function copyFromModal() {
-            navigator.clipboard.writeText(document.getElementById('modalScript').innerText).then(() => {
-                const btn = document.getElementById('modalCopyBtn');
-                btn.innerText = "COPIED!"; btn.style.background = "#22c55e"; btn.style.color = "#fff";
-                setTimeout(() => { btn.innerText = "COPY SCRIPT"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 1500);
+        function copyScriptCode() {
+            var code = document.getElementById('modalContentBox').innerText;
+            var btn = document.getElementById('modalCopyBtn');
+            navigator.clipboard.writeText(code).then(function() {
+                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
+                setTimeout(function() {
+                    btn.innerText = "COPY SCRIPT"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000";
+                }, 1500);
             });
         }
 
-        let t;
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(t);
-            t = setTimeout(() => fetchScripts(e.target.value), 500);
+        var typingDelay;
+        document.getElementById('scriptSearchInput').addEventListener('input', function(e) {
+            clearTimeout(typingDelay);
+            typingDelay = setTimeout(function() {
+                startFetchingScripts(e.target.value);
+            }, 500);
         });
 
-        window.onload = () => fetchScripts("");
+        window.onload = function() {
+            startFetchingScripts("");
+        };
     </script>
 </body>
 </html>
