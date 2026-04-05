@@ -8,17 +8,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { background-color: #000000; color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        
+        /* Discord Button Top Right */
+        .discord-btn { position: fixed; top: 25px; right: 25px; background: #5865F2; color: white; padding: 10px 20px; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px; transition: 0.3s; z-index: 100; text-decoration: none; box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3); }
+        .discord-btn:hover { background: #4752c4; transform: translateY(-2px); }
+
         .reth-title { font-size: 80px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; line-height: 1; }
-        @media (max-width: 768px) { .reth-title { font-size: 50px; } }
         .reth-title-underline { height: 2px; width: 100px; background-color: #2a2a2a; margin-top: -10px; }
         .reth-subtitle { font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 15px; }
         
+        /* Powered By Style */
+        .powered-by { font-size: 9px; font-weight: 800; color: #333; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 40px; }
+
         .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer; }
         .reth-card:hover { border-color: #333333; transform: translateY(-3px); }
         
-        /* Stats UI Styles */
-        .stats-row { display: flex; flex-wrap: wrap; gap: 10px; font-size: 9px; font-weight: 800; color: #666; margin-bottom: 12px; text-transform: uppercase; }
-        .stat-view { color: #94a3b8; }
+        .stats-row { display: flex; gap: 10px; font-size: 9px; font-weight: 800; color: #666; margin-bottom: 12px; }
         .stat-like { color: #4ade80; }
         .stat-dislike { color: #f87171; }
 
@@ -32,8 +37,6 @@
         .status-dot.patched { background-color: #ef4444; }
 
         .btn-copy-main { background-color: #ffffff; color: #000000; text-align: center; padding: 12px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; cursor: pointer; }
-        .btn-copy-main:hover { background-color: #e5e5e5; }
-
         .reth-search { background: #050505; border: 1px solid #111111; border-radius: 15px; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 24px; outline: none; }
         .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 24px; max-width: 600px; width: 95%; max-height: 85vh; overflow-y: auto; }
         .script-box { background: #000; border: 1px solid #111; border-radius: 12px; padding: 15px; font-family: monospace; font-size: 12px; color: #666; white-space: pre-wrap; word-break: break-all; margin-top: 15px; max-height: 250px; overflow-y: auto; }
@@ -41,11 +44,17 @@
 </head>
 <body class="p-6 md:p-16">
 
+    <a href="https://discord.gg/Yp2bXVvU9B" target="_blank" class="discord-btn">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/></svg>
+        Discord
+    </a>
+
     <div class="max-w-7xl mx-auto">
         <header class="py-16 md:py-20 text-center flex flex-col items-center">
             <h1 class="reth-title">RETH</h1>
             <div class="reth-title-underline"></div>
             <p class="reth-subtitle">OFFICIAL SCRIPT HUB</p>
+            <p class="powered-by">Powered by Scriptblox</p>
         </header>
 
         <div class="max-w-2xl mx-auto mb-20">
@@ -59,17 +68,10 @@
         <div class="modal-content p-8 relative">
             <button onclick="closeModal()" class="absolute top-6 right-6 text-zinc-600 hover:text-white font-bold uppercase text-[10px]">Close [X]</button>
             <h2 id="modalTitle" class="text-xl font-black uppercase italic mb-1 tracking-tighter"></h2>
-            <div id="modalStats" class="stats-row mt-2 mb-4"></div> <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-8"></p>
-            
-            <div class="flex gap-3 mb-8">
-                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-1">COPY SCRIPT</div>
-                <a href="#" id="modalWebBtn" target="_blank" class="flex-1 text-center py-3 rounded-xl border border-zinc-800 text-[10px] font-bold uppercase">VIEW WEB</a>
-            </div>
-
-            <div class="space-y-3">
-                <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Source Code:</p>
-                <div id="modalScript" class="script-box"></div>
-            </div>
+            <div id="modalStats" class="stats-row mt-2 mb-4"></div>
+            <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-8"></p>
+            <div class="flex gap-3 mb-8"><div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-1">COPY SCRIPT</div></div>
+            <div class="script-box" id="modalScript"></div>
         </div>
     </div>
 
@@ -78,21 +80,22 @@
         const modal = document.getElementById('scriptModal');
         let scriptsData = [];
 
+        // ฟังก์ชันโหลดสคริปต์ (ถ้า query ว่างจะโหลดสคริปต์แนะนำ/ล่าสุด)
         async function fetchScripts(query = "") {
-            const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=50`;
-            const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`;
+            const url = query 
+                ? `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=50`
+                : `https://scriptblox.com/api/script/fetch?page=1&max=50`; // โหลดสคริปต์ล่าสุดตอนหน้าว่าง
+            
+            const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`;
             try {
                 const response = await fetch(proxy);
                 const data = await response.json();
                 if (data && data.result) {
-                    scriptsData = data.result.scripts;
+                    scriptsData = query ? data.result.scripts : data.result.scripts;
                     renderScripts(scriptsData);
                 }
             } catch (err) { console.error("Fetch Error"); }
         }
-
-        // ฟังก์ชันจัดรูปแบบตัวเลข (เช่น 1,000,000)
-        const formatNum = (num) => (num || 0).toLocaleString();
 
         function renderScripts(scripts) {
             const placeholder = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
@@ -111,18 +114,12 @@
                             ${s.isPatched ? 'Patched' : 'Working'}
                         </div>
                     </div>
-
                     <div class="stats-row">
-                        <span class="stat-view">👁 ${formatNum(s.views)}</span>
-                        <span class="stat-like">👍 ${formatNum(s.likeCount)}</span>
-                        <span class="stat-dislike">👎 ${formatNum(s.dislikeCount)}</span>
+                        <span>👁 ${(s.views || 0).toLocaleString()}</span>
+                        <span class="stat-like">👍 ${(s.likeCount || 0).toLocaleString()}</span>
                     </div>
-
                     <div class="btn-copy-main mb-4" onclick="event.stopPropagation(); copyByIndex(${idx}, this)">COPY LOADSTRING</div>
-                    <div class="flex-grow">
-                        <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
-                        <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game.name}</p>
-                    </div>
+                    <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
                 </div>`;
             }).join('');
         }
@@ -130,49 +127,24 @@
         function openModal(index) {
             const s = scriptsData[index];
             document.getElementById('modalTitle').innerText = s.title;
-            document.getElementById('modalGame').innerText = s.game.name;
             document.getElementById('modalScript').innerText = s.script || "-- No code";
-            document.getElementById('modalWebBtn').href = `https://scriptblox.com/script/${s.slug}`;
-            
-            // แสดงสถิติแบบละเอียดใน Modal
-            document.getElementById('modalStats').innerHTML = `
-                <span class="stat-view">${formatNum(s.views)} VIEWS</span>
-                <span class="stat-like">${formatNum(s.likeCount)} LIKES</span>
-                <span class="stat-dislike">${formatNum(s.dislikeCount)} DISLIKES</span>
-            `;
-
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('opacity-100'), 10);
-            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             modal.classList.remove('opacity-100');
-            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        function copyFromModal() {
-            navigator.clipboard.writeText(document.getElementById('modalScript').innerText).then(() => {
-                const btn = document.getElementById('modalCopyBtn');
-                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
-                setTimeout(() => { btn.innerText = "COPY SCRIPT"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000"; }, 1500);
-            });
-        }
-
-        function copyByIndex(idx, btn) {
-            navigator.clipboard.writeText(scriptsData[idx].script).then(() => {
-                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
-                setTimeout(() => { btn.innerText = "COPY LOADSTRING"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000"; }, 1500);
-            });
-        }
+        // โหลดข้อมูลทันทีเมื่อเปิดหน้าเว็บ (สคริปต์แนะนำ)
+        window.onload = () => fetchScripts("");
 
         let typingTimer;
         document.getElementById('searchInput').addEventListener('input', (e) => {
             clearTimeout(typingTimer);
             typingTimer = setTimeout(() => fetchScripts(e.target.value), 400);
         });
-
-        fetchScripts("");
     </script>
 </body>
 </html>
