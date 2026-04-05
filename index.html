@@ -12,16 +12,36 @@
         @media (max-width: 768px) { .reth-title { font-size: 50px; } }
         .reth-title-underline { height: 2px; width: 100px; background-color: #2a2a2a; margin-top: -10px; }
         .reth-subtitle { font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 15px; }
+        
         .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .reth-card:hover { border-color: #333333; transform: translateY(-3px); }
+        
         .status-badge { background-color: #0c0c0c; border: 1px solid #1a1a1a; border-radius: 8px; padding: 4px 10px; font-size: 9px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
         .status-dot { height: 6px; width: 6px; border-radius: 50%; }
         .status-dot.working { background-color: #22c55e; }
         .status-dot.patched { background-color: #ef4444; }
-        .btn-get { background-color: #ffffff; color: #000000; text-align: center; padding: 14px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; transition: 0.2s; cursor: pointer; }
-        .btn-get:hover { background-color: #cccccc; }
+        
+        /* ปุ่ม Copy ใหม่ - ตำแหน่งกดง่ายขึ้น */
+        .btn-copy-main { 
+            background-color: #ffffff; 
+            color: #000000; 
+            text-align: center; 
+            padding: 12px 0; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            transition: 0.2s; 
+            cursor: pointer; 
+            margin-bottom: 12px;
+        }
+        .btn-copy-main:hover { background-color: #e5e5e5; transform: scale(1.02); }
+        .btn-copy-main:active { transform: scale(0.98); }
+
         .reth-search { background: #050505; border: 1px solid #111111; border-radius: 15px; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 24px; outline: none; }
         .reth-search:focus { border-color: #ffffff; }
+        
         .loader { width: 20px; height: 20px; border: 2px solid #111111; border-top: 2px solid #ffffff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -47,8 +67,6 @@
         const scriptGrid = document.getElementById('scriptGrid');
         const searchInput = document.getElementById('searchInput');
         const loading = document.getElementById('loading');
-
-        // เก็บข้อมูลสคริปต์ไว้ในตัวแปรแยกต่างหาก เพื่อเลี่ยงปัญหา Syntax Error ใน HTML
         let scriptsData = [];
 
         async function fetchScripts(query = "") {
@@ -60,7 +78,7 @@
                 const response = await fetch(proxy);
                 const data = await response.json();
                 if (data && data.result) {
-                    scriptsData = data.result.scripts; // เก็บข้อมูลลงตัวแปรกลาง
+                    scriptsData = data.result.scripts;
                     renderScripts(scriptsData);
                 }
             } catch (err) {
@@ -81,8 +99,8 @@
             scriptGrid.innerHTML = scripts.map((s, index) => `
                 <div class="reth-card p-5 group">
                     <button onclick="copyByIndex(${index}, this)" 
-                            class="absolute top-7 right-7 p-2 bg-black/80 border border-white/10 rounded-lg text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            class="absolute top-7 right-7 p-2.5 bg-black/90 border border-white/20 rounded-lg text-zinc-400 hover:text-white transition-all z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                         </svg>
                     </button>
@@ -95,46 +113,49 @@
                         </div>
                     </div>
 
-                    <div class="mb-6 flex-grow">
+                    <div onclick="copyByIndex(${index}, this)" class="btn-copy-main">COPY LOADSTRING</div>
+
+                    <div class="flex-grow">
                         <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
                         <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game.name}</p>
-                    </div>
-
-                    <div class="mt-auto">
-                        <div onclick="copyByIndex(${index}, this)" class="btn-get block w-full">COPY LOADSTRING</div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // คัดลอกโดยดึงจาก Array โดยตรง เพื่อจบปัญหาอักขระพิเศษขัดขวาง HTML
         function copyByIndex(index, btn) {
             const scriptText = scriptsData[index].script;
-            if (!scriptText) return alert("No script found!");
+            if (!scriptText) return;
 
             navigator.clipboard.writeText(scriptText).then(() => {
-                const originalText = btn.innerText || btn.innerHTML;
-                if (btn.tagName === 'BUTTON') {
-                    btn.classList.add('text-green-500');
-                    setTimeout(() => btn.classList.remove('text-green-500'), 1500);
+                const isIcon = btn.tagName === 'BUTTON';
+                if (isIcon) {
+                    const originalColor = btn.style.color;
+                    btn.style.color = "#22c55e";
+                    setTimeout(() => btn.style.color = originalColor, 1500);
                 } else {
+                    const originalText = btn.innerText;
                     btn.innerText = "COPIED!";
                     btn.style.backgroundColor = "#22c55e";
+                    btn.style.color = "#ffffff";
                     setTimeout(() => {
-                        btn.innerText = "COPY LOADSTRING";
+                        btn.innerText = originalText;
                         btn.style.backgroundColor = "#ffffff";
+                        btn.style.color = "#000000";
                     }, 1500);
                 }
-            }).catch(err => {
-                // Fallback สำหรับเครื่องที่ Clipboard API ไม่ทำงาน
+            }).catch(() => {
+                // Fallback สำหรับเครื่องที่บล็อก Clipboard API
                 const t = document.createElement("textarea");
                 t.value = scriptText;
                 document.body.appendChild(t);
                 t.select();
                 document.execCommand('copy');
                 document.body.removeChild(t);
-                btn.innerText = "COPIED!";
-                setTimeout(() => { btn.innerText = "COPY LOADSTRING"; }, 1500);
+                if (btn.tagName !== 'BUTTON') {
+                    btn.innerText = "COPIED!";
+                    setTimeout(() => { btn.innerText = "COPY LOADSTRING"; }, 1500);
+                }
             });
         }
 
