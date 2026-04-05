@@ -7,120 +7,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background-color: #000000; 
-            color: #ffffff; 
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* --- RETH OFFICIAL UI --- */
-        .reth-title {
-            font-size: 80px;
-            font-weight: 900;
-            font-style: italic;
-            text-transform: uppercase;
-            letter-spacing: -0.05em;
-            color: #ffffff;
-            line-height: 1;
-        }
+        body { background-color: #000000; color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; }
+        .reth-title { font-size: 80px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; line-height: 1; }
         @media (max-width: 768px) { .reth-title { font-size: 50px; } }
-
-        .reth-title-underline {
-            height: 2px;
-            width: 100px;
-            background-color: #2a2a2a;
-            margin-top: -10px;
-        }
-
-        .reth-subtitle {
-            font-size: 10px;
-            font-weight: 700;
-            color: #555555;
-            text-transform: uppercase;
-            letter-spacing: 0.5em;
-            margin-top: 15px;
-        }
-
-        .sb-credit {
-            font-size: 9px;
-            font-weight: 800;
-            color: #333;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            margin-top: 10px;
-        }
-        .sb-credit span { color: #555; }
-
-        /* --- CARD DESIGN --- */
-        .reth-card {
-            background: #050505;
-            border: 1px solid #111111;
-            border-radius: 20px;
-            transition: all 0.2s ease-in-out;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .reth-card:hover {
-            border-color: #333333;
-            transform: translateY(-3px);
-        }
-
-        .status-badge {
-            background-color: #0c0c0c;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 4px 10px;
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .reth-title-underline { height: 2px; width: 100px; background-color: #2a2a2a; margin-top: -10px; }
+        .reth-subtitle { font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 15px; }
+        .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .reth-card:hover { border-color: #333333; transform: translateY(-3px); }
+        .status-badge { background-color: #0c0c0c; border: 1px solid #1a1a1a; border-radius: 8px; padding: 4px 10px; font-size: 9px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
         .status-dot { height: 6px; width: 6px; border-radius: 50%; }
         .status-dot.working { background-color: #22c55e; }
         .status-dot.patched { background-color: #ef4444; }
-
-        .btn-get {
-            background-color: #ffffff;
-            color: #000000;
-            text-align: center;
-            padding: 14px 0;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            transition: 0.2s;
-        }
+        .btn-get { background-color: #ffffff; color: #000000; text-align: center; padding: 14px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; transition: 0.2s; cursor: pointer; }
         .btn-get:hover { background-color: #cccccc; }
-
-        .reth-search {
-            background: #050505;
-            border: 1px solid #111111;
-            border-radius: 15px;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-        }
-        .reth-search:focus { border-color: #ffffff; outline: none; }
-
-        /* --- UTILS --- */
-        .loader {
-            width: 20px; height: 20px;
-            border: 2px solid #111111; border-top: 2px solid #ffffff;
-            border-radius: 50%; animation: spin 0.8s linear infinite;
-        }
+        .reth-search { background: #050505; border: 1px solid #111111; border-radius: 15px; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 24px; outline: none; }
+        .reth-search:focus { border-color: #ffffff; }
+        .loader { width: 20px; height: 20px; border: 2px solid #111111; border-top: 2px solid #ffffff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
 <body class="p-6 md:p-16">
@@ -130,26 +33,14 @@
             <h1 class="reth-title">RETH</h1>
             <div class="reth-title-underline"></div>
             <p class="reth-subtitle">OFFICIAL SCRIPT HUB</p>
-            <div class="sb-credit">Powered by <span>ScriptBlox</span></div>
         </header>
 
         <div class="relative mb-20 max-w-2xl mx-auto">
-            <input type="text" id="searchInput" 
-                   placeholder="SEARCH SCRIPTS..." 
-                   class="reth-search w-full p-6 uppercase">
-            <div id="loading" class="hidden absolute right-6 top-6">
-                <div class="loader"></div>
-            </div>
+            <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="reth-search">
+            <div id="loading" class="hidden absolute right-6 top-6"><div class="loader"></div></div>
         </div>
 
-        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            </div>
-
-        <footer class="mt-20 py-10 border-t border-[#111] text-center">
-            <p class="text-[9px] text-zinc-700 font-bold tracking-[0.3em] uppercase">
-                RETH EXECUTOR © 2026 | Powered by ScriptBlox API
-            </p>
-        </footer>
+        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
 
     <script>
@@ -157,42 +48,26 @@
         const searchInput = document.getElementById('searchInput');
         const loading = document.getElementById('loading');
 
+        // เก็บข้อมูลสคริปต์ไว้ในตัวแปรแยกต่างหาก เพื่อเลี่ยงปัญหา Syntax Error ใน HTML
+        let scriptsData = [];
+
         async function fetchScripts(query = "") {
             loading.classList.remove('hidden');
-            scriptGrid.style.opacity = "0.5";
-
             const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=24`;
-            const proxyList = [
-                `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`,
-                `https://corsproxy.io/?${encodeURIComponent(target)}`,
-                `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`
-            ];
+            const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`;
 
-            let success = false;
-            for (const url of proxyList) {
-                if (success) break;
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error();
-                    let data;
-                    if (url.includes("allorigins")) {
-                        const json = await response.json();
-                        data = JSON.parse(json.contents);
-                    } else {
-                        data = await response.json();
-                    }
-                    if (data && data.result && data.result.scripts) {
-                        renderScripts(data.result.scripts);
-                        success = true;
-                    }
-                } catch (err) { console.warn("Proxy failed, trying next..."); }
+            try {
+                const response = await fetch(proxy);
+                const data = await response.json();
+                if (data && data.result) {
+                    scriptsData = data.result.scripts; // เก็บข้อมูลลงตัวแปรกลาง
+                    renderScripts(scriptsData);
+                }
+            } catch (err) {
+                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">FAILED TO LOAD. TRY REFRESHING.</p>';
+            } finally {
+                loading.classList.add('hidden');
             }
-
-            if (!success) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">SERVER BUSY. TRY AGAIN.</p>';
-            }
-            loading.classList.add('hidden');
-            scriptGrid.style.opacity = "1";
         }
 
         function renderScripts(scripts) {
@@ -203,51 +78,63 @@
 
             const placeholderImg = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
 
-            scriptGrid.innerHTML = scripts.map(s => {
-                const gameImgUrl = s.game && s.game.imageUrl ? s.game.imageUrl : placeholderImg;
-                const gameName = s.game && s.game.name ? s.game.name : "Universal";
-                // ดึง loadstring จาก key "script"
-                const scriptData = s.script ? s.script : "-- No script data found";
+            scriptGrid.innerHTML = scripts.map((s, index) => `
+                <div class="reth-card p-5 group">
+                    <button onclick="copyByIndex(${index}, this)" 
+                            class="absolute top-7 right-7 p-2 bg-black/80 border border-white/10 rounded-lg text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                        </svg>
+                    </button>
 
-                return `
-                    <div class="reth-card p-5 relative group">
-                        <button onclick="copyScript('${scriptData.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n')}', this)" 
-                                class="absolute top-7 right-7 p-2 bg-black/80 border border-white/10 rounded-lg text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-10"
-                                title="Copy Script">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                            </svg>
-                        </button>
-
-                        <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden">
-                            <img src="${gameImgUrl}" 
-                                 class="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition duration-500" 
-                                 onerror="this.onerror=null; this.src='${placeholderImg}';">
-                            <div class="absolute top-3 right-3 status-badge backdrop-blur-md">
-                                <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
-                                ${s.isPatched ? 'Patched' : 'Working'}
-                            </div>
-                        </div>
-
-                        <div class="mb-6 flex-grow">
-                            <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
-                            <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${gameName}</p>
-                        </div>
-
-                        <div class="mt-auto">
-                            <a href="https://scriptblox.com/script/${s.slug}" target="_blank" class="btn-get block w-full">VIEW ON WEB</a>
+                    <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden">
+                        <img src="${s.game.imageUrl || placeholderImg}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='${placeholderImg}'">
+                        <div class="absolute top-3 right-3 status-badge backdrop-blur-sm">
+                            <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
+                            ${s.isPatched ? 'Patched' : 'Working'}
                         </div>
                     </div>
-                `;
-            }).join('');
+
+                    <div class="mb-6 flex-grow">
+                        <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
+                        <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game.name}</p>
+                    </div>
+
+                    <div class="mt-auto">
+                        <div onclick="copyByIndex(${index}, this)" class="btn-get block w-full">COPY LOADSTRING</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // ฟังก์ชันคัดลอกสคริปต์
-        function copyScript(text, btn) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalContent = btn.innerHTML;
-                btn.innerHTML = '<span class="text-[10px] font-bold text-green-500">COPIED!</span>';
-                setTimeout(() => { btn.innerHTML = originalContent; }, 1500);
+        // คัดลอกโดยดึงจาก Array โดยตรง เพื่อจบปัญหาอักขระพิเศษขัดขวาง HTML
+        function copyByIndex(index, btn) {
+            const scriptText = scriptsData[index].script;
+            if (!scriptText) return alert("No script found!");
+
+            navigator.clipboard.writeText(scriptText).then(() => {
+                const originalText = btn.innerText || btn.innerHTML;
+                if (btn.tagName === 'BUTTON') {
+                    btn.classList.add('text-green-500');
+                    setTimeout(() => btn.classList.remove('text-green-500'), 1500);
+                } else {
+                    btn.innerText = "COPIED!";
+                    btn.style.backgroundColor = "#22c55e";
+                    setTimeout(() => {
+                        btn.innerText = "COPY LOADSTRING";
+                        btn.style.backgroundColor = "#ffffff";
+                    }, 1500);
+                }
+            }).catch(err => {
+                // Fallback สำหรับเครื่องที่ Clipboard API ไม่ทำงาน
+                const t = document.createElement("textarea");
+                t.value = scriptText;
+                document.body.appendChild(t);
+                t.select();
+                document.execCommand('copy');
+                document.body.removeChild(t);
+                btn.innerText = "COPIED!";
+                setTimeout(() => { btn.innerText = "COPY LOADSTRING"; }, 1500);
             });
         }
 
