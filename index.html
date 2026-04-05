@@ -7,13 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #000000; color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; }
+        body { background-color: #000000; color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         .reth-title { font-size: 80px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; line-height: 1; }
         @media (max-width: 768px) { .reth-title { font-size: 50px; } }
         .reth-title-underline { height: 2px; width: 100px; background-color: #2a2a2a; margin-top: -10px; }
         .reth-subtitle { font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 15px; }
         
-        .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer; }
         .reth-card:hover { border-color: #333333; transform: translateY(-3px); }
         
         .status-badge { background-color: #0c0c0c; border: 1px solid #1a1a1a; border-radius: 8px; padding: 4px 10px; font-size: 9px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
@@ -21,27 +21,19 @@
         .status-dot.working { background-color: #22c55e; }
         .status-dot.patched { background-color: #ef4444; }
         
-        /* ปุ่ม Copy ใหม่ - ตำแหน่งกดง่ายขึ้น */
-        .btn-copy-main { 
-            background-color: #ffffff; 
-            color: #000000; 
-            text-align: center; 
-            padding: 12px 0; 
-            border-radius: 12px; 
-            font-size: 11px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
-            transition: 0.2s; 
-            cursor: pointer; 
-            margin-bottom: 12px;
-        }
-        .btn-copy-main:hover { background-color: #e5e5e5; transform: scale(1.02); }
-        .btn-copy-main:active { transform: scale(0.98); }
+        .btn-copy-main { background-color: #ffffff; color: #000000; text-align: center; padding: 12px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; cursor: pointer; margin-bottom: 12px; }
+        .btn-copy-main:hover { background-color: #e5e5e5; }
 
         .reth-search { background: #050505; border: 1px solid #111111; border-radius: 15px; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 24px; outline: none; }
-        .reth-search:focus { border-color: #ffffff; }
         
+        .filter-btn { padding: 8px 20px; border-radius: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid #111; transition: 0.2s; color: #555; cursor: pointer; }
+        .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
+
+        /* --- Modal UI --- */
+        #scriptModal { transition: opacity 0.3s ease; }
+        .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .script-box { background: #000; border: 1px solid #111; border-radius: 12px; padding: 15px; font-family: monospace; font-size: 12px; color: #888; white-space: pre-wrap; word-break: break-all; margin-top: 15px; }
+
         .loader { width: 20px; height: 20px; border: 2px solid #111111; border-top: 2px solid #ffffff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -55,23 +47,49 @@
             <p class="reth-subtitle">OFFICIAL SCRIPT HUB</p>
         </header>
 
-        <div class="relative mb-20 max-w-2xl mx-auto">
-            <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="reth-search">
-            <div id="loading" class="hidden absolute right-6 top-6"><div class="loader"></div></div>
+        <div class="max-w-2xl mx-auto mb-20">
+            <div class="relative mb-6">
+                <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="reth-search">
+                <div id="loading" class="hidden absolute right-6 top-6"><div class="loader"></div></div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3">
+                <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+                <button class="filter-btn" onclick="setFilter('working', this)">Working</button>
+                <button class="filter-btn" onclick="setFilter('patched', this)">Patched</button>
+                <button class="filter-btn" onclick="setFilter('verified', this)">Verified</button>
+            </div>
         </div>
 
         <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    </div>
+
+    <div id="scriptModal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden opacity-0">
+        <div class="modal-content p-8 relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-zinc-500 hover:text-white font-bold uppercase text-[10px] tracking-widest">Close [X]</button>
+            <h2 id="modalTitle" class="text-xl font-black uppercase italic mb-2 tracking-tighter">Script Name</h2>
+            <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-6">Game Name</p>
+            
+            <div class="flex gap-3 mb-6">
+                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-grow !mb-0">Copy Loadstring</div>
+            </div>
+
+            <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Source Code / Loadstring:</p>
+            <div id="modalScript" class="script-box"></div>
+        </div>
     </div>
 
     <script>
         const scriptGrid = document.getElementById('scriptGrid');
         const searchInput = document.getElementById('searchInput');
         const loading = document.getElementById('loading');
+        const modal = document.getElementById('scriptModal');
+        
         let scriptsData = [];
+        let currentFilter = 'all';
 
         async function fetchScripts(query = "") {
             loading.classList.remove('hidden');
-            const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=24`;
+            const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=50`;
             const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`;
 
             try {
@@ -79,32 +97,42 @@
                 const data = await response.json();
                 if (data && data.result) {
                     scriptsData = data.result.scripts;
-                    renderScripts(scriptsData);
+                    applyFilter();
                 }
             } catch (err) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">FAILED TO LOAD. TRY REFRESHING.</p>';
+                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">FAILED TO LOAD.</p>';
             } finally {
                 loading.classList.add('hidden');
             }
         }
 
+        function setFilter(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = type;
+            applyFilter();
+        }
+
+        function applyFilter() {
+            let filtered = scriptsData;
+            if (currentFilter === 'working') filtered = scriptsData.filter(s => !s.isPatched);
+            else if (currentFilter === 'patched') filtered = scriptsData.filter(s => s.isPatched);
+            else if (currentFilter === 'verified') filtered = scriptsData.filter(s => s.verified);
+            renderScripts(filtered);
+        }
+
         function renderScripts(scripts) {
             if (!scripts || scripts.length === 0) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold text-[10px]">NO SCRIPTS FOUND.</p>';
+                scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold text-[10px] py-20">NO RESULTS FOUND.</p>';
                 return;
             }
 
             const placeholderImg = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
 
-            scriptGrid.innerHTML = scripts.map((s, index) => `
-                <div class="reth-card p-5 group">
-                    <button onclick="copyByIndex(${index}, this)" 
-                            class="absolute top-7 right-7 p-2.5 bg-black/90 border border-white/20 rounded-lg text-zinc-400 hover:text-white transition-all z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                        </svg>
-                    </button>
-
+            scriptGrid.innerHTML = scripts.map((s) => {
+                const originalIndex = scriptsData.findIndex(item => item._id === s._id);
+                return `
+                <div class="reth-card p-5 group" onclick="openModal(${originalIndex})">
                     <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden">
                         <img src="${s.game.imageUrl || placeholderImg}" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='${placeholderImg}'">
                         <div class="absolute top-3 right-3 status-badge backdrop-blur-sm">
@@ -112,53 +140,67 @@
                             ${s.isPatched ? 'Patched' : 'Working'}
                         </div>
                     </div>
-
-                    <div onclick="copyByIndex(${index}, this)" class="btn-copy-main">COPY LOADSTRING</div>
-
+                    <div class="btn-copy-main" onclick="event.stopPropagation(); copyByIndex(${originalIndex}, this)">COPY LOADSTRING</div>
                     <div class="flex-grow">
                         <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
                         <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game.name}</p>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
+        }
+
+        // --- Modal Functions ---
+        let currentModalScript = "";
+
+        function openModal(index) {
+            const s = scriptsData[index];
+            currentModalScript = s.script || "-- No script found";
+            
+            document.getElementById('modalTitle').innerText = s.title;
+            document.getElementById('modalGame').innerText = s.game.name;
+            document.getElementById('modalScript').innerText = currentModalScript;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('opacity-100'); }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('opacity-100');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            document.body.style.overflow = 'auto';
+        }
+
+        function copyFromModal() {
+            const btn = document.getElementById('modalCopyBtn');
+            navigator.clipboard.writeText(currentModalScript).then(() => {
+                btn.innerText = "COPIED!";
+                btn.style.backgroundColor = "#22c55e";
+                btn.style.color = "#fff";
+                setTimeout(() => {
+                    btn.innerText = "Copy Loadstring";
+                    btn.style.backgroundColor = "#ffffff";
+                    btn.style.color = "#000000";
+                }, 1500);
+            });
         }
 
         function copyByIndex(index, btn) {
             const scriptText = scriptsData[index].script;
-            if (!scriptText) return;
-
             navigator.clipboard.writeText(scriptText).then(() => {
-                const isIcon = btn.tagName === 'BUTTON';
-                if (isIcon) {
-                    const originalColor = btn.style.color;
-                    btn.style.color = "#22c55e";
-                    setTimeout(() => btn.style.color = originalColor, 1500);
-                } else {
-                    const originalText = btn.innerText;
-                    btn.innerText = "COPIED!";
-                    btn.style.backgroundColor = "#22c55e";
-                    btn.style.color = "#ffffff";
-                    setTimeout(() => {
-                        btn.innerText = originalText;
-                        btn.style.backgroundColor = "#ffffff";
-                        btn.style.color = "#000000";
-                    }, 1500);
-                }
-            }).catch(() => {
-                // Fallback สำหรับเครื่องที่บล็อก Clipboard API
-                const t = document.createElement("textarea");
-                t.value = scriptText;
-                document.body.appendChild(t);
-                t.select();
-                document.execCommand('copy');
-                document.body.removeChild(t);
-                if (btn.tagName !== 'BUTTON') {
-                    btn.innerText = "COPIED!";
-                    setTimeout(() => { btn.innerText = "COPY LOADSTRING"; }, 1500);
-                }
+                const originalText = btn.innerText;
+                btn.innerText = "COPIED!";
+                btn.style.backgroundColor = "#22c55e";
+                btn.style.color = "#fff";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = "#ffffff";
+                    btn.style.color = "#000000";
+                }, 1500);
             });
         }
 
+        // Search logic
         let typingTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(typingTimer);
