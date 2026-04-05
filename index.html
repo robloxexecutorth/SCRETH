@@ -5,140 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RETH — SCRIPT SEARCH</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background: #000000; 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-        }
-        .reth-card {
-            background: #050505;
-            border: 1px solid #111;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .reth-card:hover {
-            border-color: #333;
-            transform: translateY(-4px);
-            background: #080808;
-        }
-        .search-input {
-            background: #050505;
-            border: 1px solid #111;
-            transition: all 0.3s;
-        }
-        .search-input:focus {
-            border-color: #fff;
-            background: #0a0a0a;
-        }
-        .btn-get {
-            background: #ffffff;
-            color: #000000;
-            transition: all 0.2s;
-        }
-        .btn-get:hover {
-            background: #cccccc;
-            transform: scale(0.98);
-        }
-        /* แถบโหลด */
-        .loader {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #333;
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap');
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; }
+        .reth-card { background: #080808; border: 1px solid #111; border-radius: 20px; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
+        .reth-card:hover { border-color: #444; background: #0c0c0c; transform: translateY(-2px); }
+        .search-box { background: #080808; border: 1px solid #111; border-radius: 12px; outline: none; transition: 0.3s; }
+        .search-box:focus { border-color: #fff; }
+        .loader { width: 20px; height: 20px; border: 2px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-6 md:p-12">
+<body class="p-6">
 
-    <header class="max-w-6xl mx-auto mb-12 text-center">
-        <h1 class="text-4xl md:text-6xl font-[900] italic tracking-tighter uppercase mb-2">RETH SCRIPTS</h1>
-        <p class="text-[10px] text-zinc-500 font-mono tracking-[0.4em] uppercase">Search through thousands of scripts</p>
-    </header>
+    <div class="max-w-6xl mx-auto">
+        <header class="py-10">
+            <h1 class="text-5xl font-black italic tracking-tighter uppercase">RETH SCRIPTS</h1>
+            <p class="text-[10px] text-zinc-500 font-bold tracking-[0.4em] uppercase mt-1">Global Script Library</p>
+        </header>
 
-    <div class="max-w-2xl mx-auto mb-16 relative">
-        <input type="text" id="searchInput" 
-               placeholder="SEARCH SCRIPTS (E.G. BLOX FRUITS)..." 
-               class="search-input w-full p-5 rounded-2xl text-sm font-bold tracking-widest outline-none uppercase">
-        <div id="loading" class="hidden absolute right-5 top-5">
-            <span class="loader"></span>
+        <div class="relative mb-10">
+            <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="search-box w-full p-5 text-xs font-bold tracking-widest uppercase">
+            <div id="loading" class="hidden absolute right-5 top-5"><div class="loader"></div></div>
         </div>
+
+        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            </div>
     </div>
-
-    <div id="scriptGrid" class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        </div>
 
     <script>
         const scriptGrid = document.getElementById('scriptGrid');
         const searchInput = document.getElementById('searchInput');
         const loading = document.getElementById('loading');
 
-        // ฟังก์ชันดึงข้อมูลจาก ScriptBlox API
         async function fetchScripts(query = "") {
             loading.classList.remove('hidden');
+            
             try {
-                // ใช้ Proxy เพื่อเลี่ยงปัญหา CORS (เนื่องจากเรียกจาก Browser โดยตรง)
-                const proxyUrl = "https://api.allorigins.win/get?url=";
-                const targetUrl = encodeURIComponent(`https://scriptblox.com/api/script/search?q=${query}&max=20`);
-                
-                const response = await fetch(proxyUrl + targetUrl);
-                const rawData = await response.json();
-                const data = JSON.parse(rawData.contents);
+                // ใช้ Proxy ที่ทำงานได้ดีบน GitHub Pages
+                const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=20`;
+                const url = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`;
 
-                displayScripts(data.result.scripts);
+                const response = await fetch(url);
+                const json = await response.json();
+                const data = JSON.parse(json.contents); // AllOrigins จะห่อข้อมูลไว้ใน contents
+
+                if (data && data.result && data.result.scripts) {
+                    render(data.result.scripts);
+                } else {
+                    scriptGrid.innerHTML = '<p class="col-span-full text-zinc-600 text-[10px] font-bold uppercase">No results found.</p>';
+                }
             } catch (err) {
-                console.error("Error fetching scripts:", err);
-                scriptGrid.innerHTML = `<p class="col-span-full text-center text-red-500 font-mono text-xs uppercase">Failed to load scripts. Try again later.</p>`;
+                console.error(err);
+                scriptGrid.innerHTML = '<p class="col-span-full text-red-500 text-[10px] font-bold uppercase">Error loading scripts. Please refresh.</p>';
             } finally {
                 loading.classList.add('hidden');
             }
         }
 
-        // ฟังก์ชันแสดงผล Card
-        function displayScripts(scripts) {
-            if (!scripts || scripts.length === 0) {
-                scriptGrid.innerHTML = `<p class="col-span-full text-center text-zinc-600 font-mono text-xs uppercase">No scripts found.</p>`;
-                return;
-            }
-
-            scriptGrid.innerHTML = scripts.map(script => `
-                <div class="reth-card p-5 rounded-3xl flex flex-col justify-between">
-                    <div>
-                        <div class="relative mb-4 overflow-hidden rounded-2xl bg-zinc-900 aspect-video">
-                            <img src="${script.game.imageUrl || 'https://via.placeholder.com/300x150?text=No+Image'}" 
-                                 class="w-full h-full object-cover opacity-80"
-                                 onerror="this.src='https://via.placeholder.com/300x150?text=RETH+EXECUTOR'">
-                            <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-[8px] font-bold">
-                                ${script.isPatched ? '🔴 PATCHED' : '🟢 WORKING'}
-                            </div>
-                        </div>
-                        <h3 class="text-sm font-black uppercase tracking-tight mb-1 truncate">${script.title}</h3>
-                        <p class="text-[10px] text-zinc-500 font-bold mb-4 uppercase">${script.game.name}</p>
+        function render(scripts) {
+            scriptGrid.innerHTML = scripts.map(s => `
+                <div class="reth-card p-4">
+                    <div class="aspect-video bg-zinc-900 rounded-lg mb-3 overflow-hidden">
+                        <img src="${s.game.imageUrl}" class="w-full h-full object-cover opacity-60" onerror="this.src='https://via.placeholder.com/300x150/000/fff?text=RETH'">
                     </div>
-                    
-                    <a href="https://scriptblox.com/script/${script.slug}" target="_blank" 
-                       class="btn-get w-full py-3 rounded-xl text-center text-[10px] font-black uppercase tracking-widest">
-                        GET SCRIPT
-                    </a>
+                    <h3 class="text-[11px] font-black uppercase truncate mb-1">${s.title}</h3>
+                    <p class="text-[9px] text-zinc-600 font-bold uppercase truncate mb-4">${s.game.name}</p>
+                    <a href="https://scriptblox.com/script/${s.slug}" target="_blank" class="mt-auto bg-white text-black text-center py-2.5 rounded-lg text-[9px] font-black uppercase hover:bg-zinc-300 transition">GET SCRIPT</a>
                 </div>
             `).join('');
         }
 
-        // ระบบ Search แบบพิมพ์ไปค้นไป (Debounce)
         let timer;
         searchInput.addEventListener('input', () => {
             clearTimeout(timer);
-            timer = setTimeout(() => {
-                fetchScripts(searchInput.value);
-            }, 500); // ค้นหาหลังจากหยุดพิมพ์ 0.5 วินาที
+            timer = setTimeout(() => fetchScripts(searchInput.value), 600);
         });
 
-        // โหลดครั้งแรก
-        fetchScripts("");
+        fetchScripts(""); // Load initial
     </script>
 </body>
 </html>
