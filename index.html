@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RETH — SCRIPT SEARCH</title>
+    <title>RETH OFFICIAL — SCRIPT HUB</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap');
-        
         body { 
             background-color: #000000; 
             color: #ffffff; 
@@ -16,72 +15,140 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* RETH Card Style */
+        /* Header Style */
+        .reth-title {
+            font-size: 80px;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            color: #ffffff;
+            line-height: 1;
+        }
+        @media (max-width: 768px) { .reth-title { font-size: 50px; } }
+
+        .reth-title-underline {
+            height: 2px;
+            width: 100px;
+            background-color: #2a2a2a;
+            margin-top: -10px;
+        }
+
+        .reth-subtitle {
+            font-size: 10px;
+            font-weight: 700;
+            color: #555555;
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            margin-top: 15px;
+        }
+
+        /* ScriptBlox Credit Tag */
+        .sb-credit {
+            font-size: 9px;
+            font-weight: 800;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .sb-credit span { color: #555; }
+        .sb-credit:hover { color: #fff; }
+
+        /* Card Style */
         .reth-card {
-            background: #080808;
-            border: 1px solid #111;
-            border-radius: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #050505;
+            border: 1px solid #111111;
+            border-radius: 20px;
+            transition: all 0.2s ease-in-out;
             height: 100%;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         .reth-card:hover {
-            border-color: #444;
-            transform: translateY(-5px);
-            background: #0c0c0c;
-            box-shadow: 0 10px 30px -10px rgba(255,255,255,0.1);
+            border-color: #333333;
+            transform: translateY(-3px);
+            background: #080808;
         }
 
-        .search-box {
-            background: #080808;
-            border: 1px solid #111;
-            border-radius: 18px;
-            outline: none;
-            transition: 0.3s;
+        .status-badge {
+            background-color: #0c0c0c;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        .search-box:focus {
-            border-color: #ffffff;
-            background: #0c0c0c;
+        .status-dot.working { background-color: #22c55e; }
+        .status-dot.patched { background-color: #ef4444; }
+        .status-dot { height: 6px; width: 6px; border-radius: 50%; }
+
+        .btn-get {
+            background-color: #ffffff;
+            color: #000000;
+            text-align: center;
+            padding: 14px 0;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: 0.2s;
         }
+        .btn-get:hover { background-color: #cccccc; }
+
+        .reth-search {
+            background: #050505;
+            border: 1px solid #111111;
+            border-radius: 15px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+        .reth-search:focus { border-color: #ffffff; outline: none; }
 
         .loader {
-            width: 24px;
-            height: 24px;
-            border: 3px solid #1a1a1a;
-            border-top: 3px solid #ffffff;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 20px; height: 20px;
+            border: 2px solid #111111; border-top: 2px solid #ffffff;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-6 md:p-12">
+<body class="p-6 md:p-16">
 
     <div class="max-w-7xl mx-auto">
-        <header class="py-10 md:py-16">
-            <h1 class="text-6xl md:text-8xl font-[900] italic tracking-tighter uppercase leading-none">RETH SCRIPTS</h1>
-            <div class="flex items-center gap-3 mt-2">
-                <div class="h-[1px] w-12 bg-zinc-800"></div>
-                <p class="text-[10px] text-zinc-500 font-bold tracking-[0.5em] uppercase">Search Global Library</p>
-            </div>
+        <header class="py-16 md:py-20 text-center flex flex-col items-center">
+            <h1 class="reth-title">RETH</h1>
+            <div class="reth-title-underline"></div>
+            <p class="reth-subtitle">OFFICIAL SCRIPT HUB</p>
+            <div class="sb-credit">Powered by <span>ScriptBlox</span></div>
         </header>
 
-        <div class="relative mb-16 max-w-3xl">
+        <div class="relative mb-20 max-w-2xl mx-auto">
             <input type="text" id="searchInput" 
-                   placeholder="SEARCH SCRIPTS (E.G. BLOX FRUITS)..." 
-                   class="search-box w-full p-6 text-xs font-black tracking-[0.2em] uppercase">
+                   placeholder="SEARCH SCRIPTS..." 
+                   class="reth-search w-full p-6 uppercase">
             <div id="loading" class="hidden absolute right-6 top-6">
                 <div class="loader"></div>
             </div>
         </div>
 
-        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            </div>
+        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+
+        <footer class="mt-20 py-10 border-t border-[#111] text-center">
+            <p class="text-[9px] text-zinc-700 font-bold tracking-[0.3em] uppercase">
+                RETH EXECUTOR © 2026 | Powered by ScriptBlox API
+            </p>
+        </footer>
     </div>
 
     <script>
@@ -91,10 +158,9 @@
 
         async function fetchScripts(query = "") {
             loading.classList.remove('hidden');
-            scriptGrid.style.opacity = "0.4";
+            scriptGrid.style.opacity = "0.5";
 
             const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=24`;
-            
             const proxyList = [
                 `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`,
                 `https://corsproxy.io/?${encodeURIComponent(target)}`,
@@ -102,13 +168,11 @@
             ];
 
             let success = false;
-
             for (const url of proxyList) {
                 if (success) break;
                 try {
                     const response = await fetch(url);
-                    if (!response.ok) throw new Error("Proxy error");
-
+                    if (!response.ok) throw new Error();
                     let data;
                     if (url.includes("allorigins")) {
                         const json = await response.json();
@@ -116,77 +180,53 @@
                     } else {
                         data = await response.json();
                     }
-
                     if (data && data.result && data.result.scripts) {
                         renderScripts(data.result.scripts);
                         success = true;
                     }
-                } catch (err) {
-                    console.warn(`Proxy ${url} failed, trying next...`);
-                }
+                } catch (err) { console.warn("Proxy failed"); }
             }
 
             if (!success) {
-                scriptGrid.innerHTML = `
-                    <div class="col-span-full py-20 text-center">
-                        <p class="text-red-500 font-black uppercase text-[10px] tracking-widest">Connection Error: All proxies are busy.</p>
-                        <button onclick="location.reload()" class="mt-4 text-white border border-white/20 px-6 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-white hover:text-black transition">Try Again</button>
-                    </div>
-                `;
+                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">SERVER BUSY.</p>';
             }
-
             loading.classList.add('hidden');
             scriptGrid.style.opacity = "1";
         }
 
         function renderScripts(scripts) {
             if (!scripts || scripts.length === 0) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold uppercase text-[10px] tracking-widest py-20">No scripts found.</p>';
+                scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold text-[10px]">NO SCRIPTS FOUND.</p>';
                 return;
             }
-
-            // รูปสำรองกรณีดึงรูปจริงไม่ได้
-            const placeholderImg = "https://via.placeholder.com/400x225/000000/FFFFFF?text=RETH+OFFICIAL";
-
-            scriptGrid.innerHTML = scripts.map(s => {
-                const gameImgUrl = s.game && s.game.imageUrl ? s.game.imageUrl : placeholderImg;
-                const gameName = s.game && s.game.name ? s.game.name : "Script Hub";
-
-                return `
-                    <div class="reth-card p-5">
-                        <div class="relative aspect-video bg-zinc-900 rounded-2xl mb-4 overflow-hidden group">
-                            <img src="${gameImgUrl}" 
-                                 class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" 
-                                 onerror="this.onerror=null; this.src='${placeholderImg}';">
-                            <div class="absolute top-3 right-3 px-2 py-1 bg-black/80 backdrop-blur-md rounded-lg border border-white/10">
-                                 <p class="text-[8px] font-black uppercase tracking-tighter">${s.isPatched ? '🔴 Patched' : '🟢 Working'}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-6">
-                            <h3 class="text-sm font-black uppercase tracking-tight truncate">${s.title}</h3>
-                            <p class="text-[9px] text-zinc-500 font-bold uppercase mt-1 truncate">${gameName}</p>
-                        </div>
-
-                        <div class="mt-auto flex flex-col gap-2">
-                            <a href="https://scriptblox.com/script/${s.slug}" target="_blank" 
-                               class="bg-white text-black text-center py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition active:scale-95">
-                               GET SCRIPT
-                            </a>
+            const placeholderImg = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
+            scriptGrid.innerHTML = scripts.map(s => `
+                <div class="reth-card p-5">
+                    <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden group">
+                        <img src="${s.game && s.game.imageUrl ? s.game.imageUrl : placeholderImg}" 
+                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" 
+                             onerror="this.onerror=null; this.src='${placeholderImg}';">
+                        <div class="absolute top-3 right-3 status-badge backdrop-blur-sm">
+                            <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
+                            ${s.isPatched ? 'Patched' : 'Working'}
                         </div>
                     </div>
-                `;
-            }).join('');
+                    <div class="mb-6 flex-grow">
+                        <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
+                        <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game ? s.game.name : 'Universal'}</p>
+                    </div>
+                    <div class="mt-auto">
+                        <a href="https://scriptblox.com/script/${s.slug}" target="_blank" class="btn-get block w-full">GET SCRIPT</a>
+                    </div>
+                </div>
+            `).join('');
         }
 
         let typingTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => {
-                fetchScripts(searchInput.value);
-            }, 400);
+            typingTimer = setTimeout(() => fetchScripts(searchInput.value), 400);
         });
-
         fetchScripts("");
     </script>
 </body>
