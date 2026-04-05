@@ -16,9 +16,9 @@
         .reth-card { background: #050505; border: 1px solid #111111; border-radius: 20px; transition: all 0.2s ease-in-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer; }
         .reth-card:hover { border-color: #333333; transform: translateY(-3px); }
         
-        /* Stats Styles */
-        .stats-container { display: flex; gap: 12px; font-size: 10px; font-weight: 800; color: #555; margin-bottom: 8px; }
-        .stat-item { display: flex; align-items: center; gap: 4px; }
+        /* Stats UI Styles */
+        .stats-row { display: flex; flex-wrap: wrap; gap: 10px; font-size: 9px; font-weight: 800; color: #666; margin-bottom: 12px; text-transform: uppercase; }
+        .stat-view { color: #94a3b8; }
         .stat-like { color: #4ade80; }
         .stat-dislike { color: #f87171; }
 
@@ -33,7 +33,6 @@
 
         .btn-copy-main { background-color: #ffffff; color: #000000; text-align: center; padding: 12px 0; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; cursor: pointer; }
         .btn-copy-main:hover { background-color: #e5e5e5; }
-        .btn-view-web { background-color: transparent; color: #ffffff; text-align: center; padding: 11px 0; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid #222; transition: 0.2s; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
 
         .reth-search { background: #050505; border: 1px solid #111111; border-radius: 15px; color: #ffffff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 24px; outline: none; }
         .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 24px; max-width: 600px; width: 95%; max-height: 85vh; overflow-y: auto; }
@@ -60,11 +59,11 @@
         <div class="modal-content p-8 relative">
             <button onclick="closeModal()" class="absolute top-6 right-6 text-zinc-600 hover:text-white font-bold uppercase text-[10px]">Close [X]</button>
             <h2 id="modalTitle" class="text-xl font-black uppercase italic mb-1 tracking-tighter"></h2>
-            <div id="modalStats" class="stats-container mt-2 mb-4"></div> <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-8"></p>
+            <div id="modalStats" class="stats-row mt-2 mb-4"></div> <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-8"></p>
             
             <div class="flex gap-3 mb-8">
                 <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-1">COPY SCRIPT</div>
-                <a href="#" id="modalWebBtn" target="_blank" class="btn-view-web flex-1">VIEW WEB</a>
+                <a href="#" id="modalWebBtn" target="_blank" class="flex-1 text-center py-3 rounded-xl border border-zinc-800 text-[10px] font-bold uppercase">VIEW WEB</a>
             </div>
 
             <div class="space-y-3">
@@ -92,16 +91,15 @@
             } catch (err) { console.error("Fetch Error"); }
         }
 
+        // ฟังก์ชันจัดรูปแบบตัวเลข (เช่น 1,000,000)
+        const formatNum = (num) => (num || 0).toLocaleString();
+
         function renderScripts(scripts) {
             const placeholder = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
             scriptGrid.innerHTML = scripts.map((s, idx) => {
                 let displayImg = placeholder;
                 if (s.image && !s.image.includes('http')) displayImg = `https://scriptblox.com${s.image}`;
                 else if (s.game.imageUrl) displayImg = s.game.imageUrl;
-
-                // Stats Logic
-                const likes = s.likeCount || 0;
-                const dislikes = s.dislikeCount || 0;
 
                 return `
                 <div class="reth-card p-5 group" onclick="openModal(${idx})">
@@ -114,9 +112,10 @@
                         </div>
                     </div>
 
-                    <div class="stats-container">
-                        <div class="stat-item stat-like">👍 ${likes.toLocaleString()}</div>
-                        <div class="stat-item stat-dislike">👎 ${dislikes.toLocaleString()}</div>
+                    <div class="stats-row">
+                        <span class="stat-view">👁 ${formatNum(s.views)}</span>
+                        <span class="stat-like">👍 ${formatNum(s.likeCount)}</span>
+                        <span class="stat-dislike">👎 ${formatNum(s.dislikeCount)}</span>
                     </div>
 
                     <div class="btn-copy-main mb-4" onclick="event.stopPropagation(); copyByIndex(${idx}, this)">COPY LOADSTRING</div>
@@ -135,10 +134,11 @@
             document.getElementById('modalScript').innerText = s.script || "-- No code";
             document.getElementById('modalWebBtn').href = `https://scriptblox.com/script/${s.slug}`;
             
-            // เพิ่มสถิติใน Modal
+            // แสดงสถิติแบบละเอียดใน Modal
             document.getElementById('modalStats').innerHTML = `
-                <div class="stat-item stat-like">👍 ${s.likeCount || 0} LIKES</div>
-                <div class="stat-item stat-dislike">👎 ${s.dislikeCount || 0} DISLIKES</div>
+                <span class="stat-view">${formatNum(s.views)} VIEWS</span>
+                <span class="stat-like">${formatNum(s.likeCount)} LIKES</span>
+                <span class="stat-dislike">${formatNum(s.dislikeCount)} DISLIKES</span>
             `;
 
             modal.classList.remove('hidden');
