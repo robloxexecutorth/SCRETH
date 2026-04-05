@@ -15,7 +15,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Header Style */
+        /* --- RETH OFFICIAL UI --- */
         .reth-title {
             font-size: 80px;
             font-weight: 900;
@@ -43,7 +43,6 @@
             margin-top: 15px;
         }
 
-        /* ScriptBlox Credit Tag */
         .sb-credit {
             font-size: 9px;
             font-weight: 800;
@@ -51,12 +50,10 @@
             text-transform: uppercase;
             letter-spacing: 0.2em;
             margin-top: 10px;
-            transition: 0.3s;
         }
         .sb-credit span { color: #555; }
-        .sb-credit:hover { color: #fff; }
 
-        /* Card Style */
+        /* --- CARD DESIGN --- */
         .reth-card {
             background: #050505;
             border: 1px solid #111111;
@@ -70,7 +67,6 @@
         .reth-card:hover {
             border-color: #333333;
             transform: translateY(-3px);
-            background: #080808;
         }
 
         .status-badge {
@@ -85,9 +81,9 @@
             align-items: center;
             gap: 5px;
         }
+        .status-dot { height: 6px; width: 6px; border-radius: 50%; }
         .status-dot.working { background-color: #22c55e; }
         .status-dot.patched { background-color: #ef4444; }
-        .status-dot { height: 6px; width: 6px; border-radius: 50%; }
 
         .btn-get {
             background-color: #ffffff;
@@ -115,12 +111,16 @@
         }
         .reth-search:focus { border-color: #ffffff; outline: none; }
 
+        /* --- UTILS --- */
         .loader {
             width: 20px; height: 20px;
             border: 2px solid #111111; border-top: 2px solid #ffffff;
             border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
 <body class="p-6 md:p-16">
@@ -142,7 +142,8 @@
             </div>
         </div>
 
-        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
 
         <footer class="mt-20 py-10 border-t border-[#111] text-center">
             <p class="text-[9px] text-zinc-700 font-bold tracking-[0.3em] uppercase">
@@ -184,11 +185,11 @@
                         renderScripts(data.result.scripts);
                         success = true;
                     }
-                } catch (err) { console.warn("Proxy failed"); }
+                } catch (err) { console.warn("Proxy failed, trying next..."); }
             }
 
             if (!success) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">SERVER BUSY.</p>';
+                scriptGrid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold text-[10px]">SERVER BUSY. TRY AGAIN.</p>';
             }
             loading.classList.add('hidden');
             scriptGrid.style.opacity = "1";
@@ -199,27 +200,55 @@
                 scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold text-[10px]">NO SCRIPTS FOUND.</p>';
                 return;
             }
+
             const placeholderImg = "https://via.placeholder.com/400x225/050505/222222?text=RETH+OFFICIAL";
-            scriptGrid.innerHTML = scripts.map(s => `
-                <div class="reth-card p-5">
-                    <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden group">
-                        <img src="${s.game && s.game.imageUrl ? s.game.imageUrl : placeholderImg}" 
-                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" 
-                             onerror="this.onerror=null; this.src='${placeholderImg}';">
-                        <div class="absolute top-3 right-3 status-badge backdrop-blur-sm">
-                            <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
-                            ${s.isPatched ? 'Patched' : 'Working'}
+
+            scriptGrid.innerHTML = scripts.map(s => {
+                const gameImgUrl = s.game && s.game.imageUrl ? s.game.imageUrl : placeholderImg;
+                const gameName = s.game && s.game.name ? s.game.name : "Universal";
+                // ดึง loadstring จาก key "script"
+                const scriptData = s.script ? s.script : "-- No script data found";
+
+                return `
+                    <div class="reth-card p-5 relative group">
+                        <button onclick="copyScript('${scriptData.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n')}', this)" 
+                                class="absolute top-7 right-7 p-2 bg-black/80 border border-white/10 rounded-lg text-zinc-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-10"
+                                title="Copy Script">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                            </svg>
+                        </button>
+
+                        <div class="relative aspect-video bg-zinc-950 rounded-xl mb-4 overflow-hidden">
+                            <img src="${gameImgUrl}" 
+                                 class="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition duration-500" 
+                                 onerror="this.onerror=null; this.src='${placeholderImg}';">
+                            <div class="absolute top-3 right-3 status-badge backdrop-blur-md">
+                                <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
+                                ${s.isPatched ? 'Patched' : 'Working'}
+                            </div>
+                        </div>
+
+                        <div class="mb-6 flex-grow">
+                            <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
+                            <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${gameName}</p>
+                        </div>
+
+                        <div class="mt-auto">
+                            <a href="https://scriptblox.com/script/${s.slug}" target="_blank" class="btn-get block w-full">VIEW ON WEB</a>
                         </div>
                     </div>
-                    <div class="mb-6 flex-grow">
-                        <h3 class="text-sm font-black uppercase truncate mb-1">${s.title}</h3>
-                        <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game ? s.game.name : 'Universal'}</p>
-                    </div>
-                    <div class="mt-auto">
-                        <a href="https://scriptblox.com/script/${s.slug}" target="_blank" class="btn-get block w-full">GET SCRIPT</a>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        // ฟังก์ชันคัดลอกสคริปต์
+        function copyScript(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<span class="text-[10px] font-bold text-green-500">COPIED!</span>';
+                setTimeout(() => { btn.innerHTML = originalContent; }, 1500);
+            });
         }
 
         let typingTimer;
@@ -227,6 +256,7 @@
             clearTimeout(typingTimer);
             typingTimer = setTimeout(() => fetchScripts(searchInput.value), 400);
         });
+
         fetchScripts("");
     </script>
 </body>
