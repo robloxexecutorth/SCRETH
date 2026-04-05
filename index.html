@@ -7,85 +7,81 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #000000; color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        body { background-color: #000000; color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; }
         
-        /* Discord Button Top Right */
-        .discord-btn { position: fixed; top: 25px; right: 25px; background: #5865F2; color: white; padding: 12px 24px; border-radius: 14px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; z-index: 100; text-decoration: none; box-shadow: 0 4px 20px rgba(88, 101, 242, 0.4); }
-        .discord-btn:hover { background: #4752c4; transform: translateY(-3px); }
+        .discord-btn { position: fixed; top: 25px; right: 25px; background: #5865F2; color: white; padding: 12px 24px; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; z-index: 100; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-        .reth-title { font-size: 85px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; line-height: 1; }
-        .reth-title-underline { height: 2px; width: 120px; background-color: #2a2a2a; margin-top: -10px; }
-        .reth-subtitle { font-size: 10px; font-weight: 700; color: #555555; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 15px; }
-        .powered-by { font-size: 9px; font-weight: 800; color: #333333; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 30px; }
+        .reth-search { background: #050505; border: 1px solid #111; border-radius: 20px; color: #ffffff; font-size: 13px; font-weight: 700; text-transform: uppercase; width: 100%; padding: 22px 30px; outline: none; }
 
-        /* Search Section */
-        .reth-search { background: #050505; border: 1px solid #111111; border-radius: 20px; color: #ffffff; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; width: 100%; padding: 26px; outline: none; }
+        /* Card - ปรับกลับมาให้ทึบและชัดเจน */
+        .reth-card { background: #050505; border: 1px solid #111; border-radius: 24px; padding: 24px; transition: 0.2s; height: 100%; display: flex; flex-direction: column; cursor: pointer; }
+        .reth-card:hover { border-color: #333; background: #080808; }
+
+        /* Image - เอา Opacity ออกเพื่อให้ภาพชัด 100% */
+        .thumb-container { position: relative; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; margin-bottom: 15px; background: #000; }
+        .thumb-img { width: 100%; height: 100%; object-fit: cover; opacity: 1 !important; } /* ชัดเจน 100% */
+
+        /* Tags - ปรับสีให้ทึบ ไม่โปร่งแสง */
+        .tag-common { position: absolute; top: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 5px 12px; border-radius: 6px; z-index: 10; }
+        .tag-keyless { left: 12px; background: #15803d; color: #fff; } 
+        .tag-key { left: 12px; background: #a16207; color: #fff; }
         
-        /* Card Styling */
-        .reth-card { background: #050505; border: 1px solid #111111; border-radius: 24px; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; cursor: pointer; }
-        .reth-card:hover { border-color: #333333; transform: translateY(-5px); }
-        
-        /* Key Badges */
-        .key-tag { position: absolute; top: 15px; left: 15px; font-size: 8px; font-weight: 900; text-transform: uppercase; padding: 5px 10px; border-radius: 8px; letter-spacing: 0.05em; backdrop-filter: blur(8px); z-index: 10; }
-        .key-required { background-color: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
-        .keyless { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        /* Working Status - ปรับให้เด่นชัดบนรูป */
+        .tag-status { position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; background: rgba(0,0,0,0.8); padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot-working { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .dot-patched { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
 
-        /* Stats Row */
-        .stats-row { display: flex; gap: 15px; font-size: 10px; font-weight: 800; color: #555555; margin-bottom: 12px; }
+        /* Stats & Buttons */
+        .stats-row { display: flex; gap: 12px; margin-bottom: 15px; font-size: 10px; font-weight: 800; color: #666; }
         .stat-like { color: #4ade80; }
         .stat-dislike { color: #f87171; }
 
-        /* Buttons */
-        .btn-copy-main { background-color: #ffffff; color: #000000; text-align: center; padding: 14px 0; border-radius: 14px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; cursor: pointer; }
-        .btn-copy-main:hover { background-color: #e5e5e5; }
+        .btn-copy { background: #ffffff; color: #000; text-align: center; padding: 14px; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; cursor: pointer; }
         
-        .btn-view-web { background-color: transparent; color: #ffffff; text-align: center; padding: 13px 0; border-radius: 14px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid #222; transition: 0.2s; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; }
-        .btn-view-web:hover { background-color: #111; border-color: #444; }
+        .script-title { font-size: 15px; font-weight: 900; text-transform: uppercase; color: #fff; line-height: 1.2; margin-bottom: 4px; }
+        .game-title { font-size: 9px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.1em; }
 
-        /* Modal UI */
-        .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 30px; max-width: 650px; width: 95%; max-height: 85vh; overflow-y: auto; padding: 40px; }
-        .script-box { background: #000; border: 1px solid #111; border-radius: 16px; padding: 20px; font-family: monospace; font-size: 13px; color: #666; white-space: pre-wrap; word-break: break-all; margin-top: 20px; }
+        /* Modal */
+        .modal-content { background: #080808; border: 1px solid #1a1a1a; border-radius: 24px; max-width: 600px; width: 95%; padding: 40px; position: relative; }
+        .script-box { background: #000; border: 1px solid #111; border-radius: 12px; padding: 20px; font-family: monospace; font-size: 12px; color: #555; white-space: pre-wrap; margin-top: 20px; }
     </style>
 </head>
 <body class="p-6 md:p-16">
 
-    <a href="https://discord.gg/Yp2bXVvU9B" target="_blank" class="discord-btn">Discord</a>
+    <a href="https://discord.gg/Yp2bXVvU9B" target="_blank" class="discord-btn">DISCORD</a>
 
     <div class="max-w-7xl mx-auto">
-        <header class="py-16 md:py-24 text-center flex flex-col items-center">
-            <h1 class="reth-title">RETH</h1>
-            <div class="reth-title-underline"></div>
-            <p class="reth-subtitle">OFFICIAL SCRIPT HUB</p>
-            <p class="powered-by">Powered by Scriptblox</p>
+        <header class="py-16 text-center">
+            <h1 class="text-[80px] font-black italic uppercase leading-none tracking-tighter">RETH</h1>
+            <p class="text-[10px] font-bold text-zinc-700 tracking-[0.5em] mt-2 uppercase">OFFICIAL SCRIPT HUB</p>
         </header>
 
-        <div class="max-w-2xl mx-auto mb-20">
-            <input type="text" id="searchInput" placeholder="SEARCH FOR SCRIPTS..." class="reth-search">
+        <div class="max-w-2xl mx-auto mb-16">
+            <input type="text" id="searchInput" placeholder="SEARCH SCRIPTS..." class="reth-search">
         </div>
 
-        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
 
-    <div id="scriptModal" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="modal-content relative">
-            <button onclick="closeModal()" class="absolute top-8 right-8 text-zinc-600 hover:text-white font-bold uppercase text-[10px]">Close [X]</button>
-            <h2 id="modalTitle" class="text-2xl font-black uppercase italic mb-2 tracking-tighter"></h2>
-            <div id="modalStats" class="stats-row mb-3"></div>
-            <p id="modalGame" class="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mb-10"></p>
+    <div id="scriptModal" class="fixed inset-0 bg-black/98 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="modal-content">
+            <button onclick="closeModal()" class="absolute top-6 right-8 text-zinc-600 font-bold text-[10px] uppercase">Close [X]</button>
+            <h2 id="modalTitle" class="text-2xl font-black uppercase italic mb-1"></h2>
+            <div id="modalStats" class="stats-row mb-4"></div>
+            <p id="modalGame" class="text-[10px] text-zinc-600 font-bold uppercase mb-8"></p>
             
-            <div class="flex gap-4 mb-8">
-                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-1">COPY SCRIPT</div>
-                <a href="#" id="modalWebBtn" target="_blank" class="btn-view-web flex-1">VIEW WEB</a>
+            <div class="flex gap-3 mb-6">
+                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy flex-1 mb-0">COPY SCRIPT</div>
+                <a href="#" id="modalWebBtn" target="_blank" class="border border-zinc-800 text-white text-[10px] font-black uppercase rounded-12 flex items-center justify-center px-8">VIEW WEB</a>
             </div>
-
-            <div id="modalScript" class="script-box"></div>
+            <div id="modalScript" class="script-box max-h-[250px]"></div>
         </div>
     </div>
 
     <script>
         const scriptGrid = document.getElementById('scriptGrid');
         const modal = document.getElementById('scriptModal');
-        const searchInput = document.getElementById('searchInput');
         let scriptsData = [];
 
         async function fetchScripts(query = "") {
@@ -94,61 +90,56 @@
                 : `https://scriptblox.com/api/script/fetch?page=1&max=50`; 
             const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`;
             try {
-                const response = await fetch(proxy);
-                const data = await response.json();
-                if (data && data.result) {
-                    scriptsData = data.result.scripts || data.result.docs || [];
-                    renderScripts(scriptsData);
-                }
-            } catch (e) { console.error("Fetch error"); }
+                const res = await fetch(proxy);
+                const data = await res.json();
+                scriptsData = data.result.scripts || data.result.docs || [];
+                render(scriptsData);
+            } catch (e) { console.error("API Error"); }
         }
 
         const formatNum = (n) => (n || 0).toLocaleString();
 
-        function renderScripts(scripts) {
-            const placeholder = "https://via.placeholder.com/400x225/050505/222222?text=RETH+HUB";
-            scriptGrid.innerHTML = scripts.map((s, idx) => {
-                let thumb = placeholder;
-                if (s.image && !s.image.includes('http')) thumb = `https://scriptblox.com${s.image}`;
-                else if (s.game && s.game.imageUrl) thumb = s.game.imageUrl;
-
+        function render(scripts) {
+            scriptGrid.innerHTML = scripts.map((s, i) => {
+                const thumb = s.image && !s.image.includes('http') ? `https://scriptblox.com${s.image}` : (s.game.imageUrl || '');
                 return `
-                <div class="reth-card p-6 group" onclick="openModal(${idx})">
-                    <div class="relative aspect-video bg-zinc-950 rounded-2xl mb-5 overflow-hidden">
-                        <div class="key-tag ${s.key ? "key-required" : "keyless"}">${s.key ? "Key Required" : "Keyless"}</div>
-                        <img src="${thumb}" class="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition duration-700" onerror="this.src='${placeholder}'">
-                        <div class="absolute top-3 right-3 status-badge">
-                            <span class="status-dot ${s.isPatched ? 'patched' : 'working'}"></span>
+                <div class="reth-card" onclick="openModal(${i})">
+                    <div class="thumb-container">
+                        <div class="tag-common ${s.key ? 'tag-key' : 'tag-keyless'}">${s.key ? 'KEY' : 'KEYLESS'}</div>
+                        <div class="tag-status">
+                            <span class="dot ${s.isPatched ? 'dot-patched' : 'dot-working'}"></span>
                             ${s.isPatched ? 'Patched' : 'Working'}
                         </div>
+                        <img src="${thumb}" class="thumb-img" onerror="this.src='https://via.placeholder.com/400x225/050505/222?text=RETH+HUB'">
                     </div>
+
                     <div class="stats-row">
                         <span>👁 ${formatNum(s.views)}</span>
                         <span class="stat-like">👍 ${formatNum(s.likeCount)}</span>
                         <span class="stat-dislike">👎 ${formatNum(s.dislikeCount)}</span>
                     </div>
-                    <div class="btn-copy-main mb-4" onclick="event.stopPropagation(); copyByIndex(${idx}, this)">COPY LOADSTRING</div>
+
+                    <div class="btn-copy" onclick="event.stopPropagation(); copyIdx(${i}, this)">COPY LOADSTRING</div>
+
                     <div class="flex-grow">
-                        <h3 class="text-sm font-black uppercase truncate mb-1 tracking-tight">${s.title}</h3>
-                        <p class="text-[9px] text-zinc-600 font-bold uppercase truncate">${s.game ? s.game.name : 'Universal'}</p>
+                        <h3 class="script-title truncate">${s.title}</h3>
+                        <p class="game-title truncate">${s.game ? s.game.name : 'UNIVERSAL'}</p>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function openModal(index) {
-            const s = scriptsData[index];
+        function openModal(i) {
+            const s = scriptsData[i];
             document.getElementById('modalTitle').innerText = s.title;
-            document.getElementById('modalGame').innerText = s.game ? s.game.name : 'Universal';
-            document.getElementById('modalScript').innerText = s.script || "-- No Script --";
-            document.getElementById('modalWebBtn').href = `https://scriptblox.com/script/${s.slug}`; // ลิงก์ไปยังเว็บ
-            
+            document.getElementById('modalGame').innerText = s.game ? s.game.name : 'UNIVERSAL';
+            document.getElementById('modalScript').innerText = s.script;
+            document.getElementById('modalWebBtn').href = `https://scriptblox.com/script/${s.slug}`;
             document.getElementById('modalStats').innerHTML = `
                 <span>👁 ${formatNum(s.views)} VIEWS</span>
                 <span class="stat-like">👍 ${formatNum(s.likeCount)} LIKES</span>
                 <span class="stat-dislike">👎 ${formatNum(s.dislikeCount)} DISLIKES</span>
             `;
-
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('opacity-100'), 10);
             document.body.style.overflow = 'hidden';
@@ -159,25 +150,25 @@
             setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = 'auto'; }, 300);
         }
 
+        function copyIdx(i, btn) {
+            navigator.clipboard.writeText(scriptsData[i].script).then(() => {
+                btn.innerText = "COPIED!"; btn.style.background = "#22c55e"; btn.style.color = "#fff";
+                setTimeout(() => { btn.innerText = "COPY LOADSTRING"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 1500);
+            });
+        }
+
         function copyFromModal() {
             navigator.clipboard.writeText(document.getElementById('modalScript').innerText).then(() => {
                 const btn = document.getElementById('modalCopyBtn');
-                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
-                setTimeout(() => { btn.innerText = "COPY SCRIPT"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000"; }, 1500);
+                btn.innerText = "COPIED!"; btn.style.background = "#22c55e"; btn.style.color = "#fff";
+                setTimeout(() => { btn.innerText = "COPY SCRIPT"; btn.style.background = "#fff"; btn.style.color = "#000"; }, 1500);
             });
         }
 
-        function copyByIndex(idx, btn) {
-            navigator.clipboard.writeText(scriptsData[idx].script).then(() => {
-                btn.innerText = "COPIED!"; btn.style.backgroundColor = "#22c55e"; btn.style.color = "#fff";
-                setTimeout(() => { btn.innerText = "COPY LOADSTRING"; btn.style.backgroundColor = "#fff"; btn.style.color = "#000"; }, 1500);
-            });
-        }
-
-        let typingTimer;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => fetchScripts(e.target.value), 500);
+        let t;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(t);
+            t = setTimeout(() => fetchScripts(e.target.value), 500);
         });
 
         window.onload = () => fetchScripts("");
