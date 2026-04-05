@@ -33,7 +33,6 @@
             box-shadow: 0 10px 30px -10px rgba(255,255,255,0.1);
         }
 
-        /* Search Input Style */
         .search-box {
             background: #080808;
             border: 1px solid #111;
@@ -46,7 +45,6 @@
             background: #0c0c0c;
         }
 
-        /* Custom Loader */
         .loader {
             width: 24px;
             height: 24px;
@@ -57,11 +55,9 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ปรับแต่ง Scrollbar ให้ดูดาร์ก */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #333; }
     </style>
 </head>
 <body class="p-6 md:p-12">
@@ -93,14 +89,12 @@
         const searchInput = document.getElementById('searchInput');
         const loading = document.getElementById('loading');
 
-        // ฟังก์ชันหลักในการดึงข้อมูล (ใช้ Multi-Proxy ป้องกันการโหลดนาน)
         async function fetchScripts(query = "") {
             loading.classList.remove('hidden');
-            scriptGrid.style.opacity = "0.4"; // แสดงสถานะว่ากำลังโหลด
+            scriptGrid.style.opacity = "0.4";
 
             const target = `https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}&max=24`;
             
-            // รายชื่อ Proxy ที่จะลอง (เรียงตามความเร็ว)
             const proxyList = [
                 `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(target)}`,
                 `https://corsproxy.io/?${encodeURIComponent(target)}`,
@@ -116,7 +110,6 @@
                     if (!response.ok) throw new Error("Proxy error");
 
                     let data;
-                    // AllOrigins ต้อง parse contents อีกรอบ
                     if (url.includes("allorigins")) {
                         const json = await response.json();
                         data = JSON.parse(json.contents);
@@ -146,40 +139,46 @@
             scriptGrid.style.opacity = "1";
         }
 
-        // ฟังก์ชันสร้าง Card สคริปต์
         function renderScripts(scripts) {
             if (!scripts || scripts.length === 0) {
-                scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold uppercase text-[10px] tracking-widest py-20">No scripts found for this search.</p>';
+                scriptGrid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold uppercase text-[10px] tracking-widest py-20">No scripts found.</p>';
                 return;
             }
 
-            scriptGrid.innerHTML = scripts.map(s => `
-                <div class="reth-card p-5">
-                    <div class="relative aspect-video bg-zinc-900 rounded-2xl mb-4 overflow-hidden group">
-                        <img src="${s.game.imageUrl}" 
-                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" 
-                             onerror="this.src='https://via.placeholder.com/400x225/080808/333333?text=RETH+OFFICIAL'">
-                        <div class="absolute top-3 right-3 px-2 py-1 bg-black/80 backdrop-blur-md rounded-lg border border-white/10">
-                             <p class="text-[8px] font-black uppercase tracking-tighter">${s.isPatched ? '🔴 Patched' : '🟢 Working'}</p>
+            // รูปสำรองกรณีดึงรูปจริงไม่ได้
+            const placeholderImg = "https://via.placeholder.com/400x225/000000/FFFFFF?text=RETH+OFFICIAL";
+
+            scriptGrid.innerHTML = scripts.map(s => {
+                const gameImgUrl = s.game && s.game.imageUrl ? s.game.imageUrl : placeholderImg;
+                const gameName = s.game && s.game.name ? s.game.name : "Script Hub";
+
+                return `
+                    <div class="reth-card p-5">
+                        <div class="relative aspect-video bg-zinc-900 rounded-2xl mb-4 overflow-hidden group">
+                            <img src="${gameImgUrl}" 
+                                 class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" 
+                                 onerror="this.onerror=null; this.src='${placeholderImg}';">
+                            <div class="absolute top-3 right-3 px-2 py-1 bg-black/80 backdrop-blur-md rounded-lg border border-white/10">
+                                 <p class="text-[8px] font-black uppercase tracking-tighter">${s.isPatched ? '🔴 Patched' : '🟢 Working'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-sm font-black uppercase tracking-tight truncate">${s.title}</h3>
+                            <p class="text-[9px] text-zinc-500 font-bold uppercase mt-1 truncate">${gameName}</p>
+                        </div>
+
+                        <div class="mt-auto flex flex-col gap-2">
+                            <a href="https://scriptblox.com/script/${s.slug}" target="_blank" 
+                               class="bg-white text-black text-center py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition active:scale-95">
+                               GET SCRIPT
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="mb-6">
-                        <h3 class="text-sm font-black uppercase tracking-tight truncate">${s.title}</h3>
-                        <p class="text-[9px] text-zinc-500 font-bold uppercase mt-1 truncate">${s.game.name}</p>
-                    </div>
-
-                    <div class="mt-auto flex flex-col gap-2">
-                        <a href="https://scriptblox.com/script/${s.slug}" target="_blank" 
-                           class="bg-white text-black text-center py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition active:scale-95">
-                           GET SCRIPT
-                        </a>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // ระบบ Search แบบ Debounce (หน่วงเวลาพิมพ์ 0.4 วินาทีเพื่อลดภาระ API)
         let typingTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(typingTimer);
@@ -188,7 +187,6 @@
             }, 400);
         });
 
-        // โหลดข้อมูลครั้งแรกทันทีที่เปิดหน้าเว็บ
         fetchScripts("");
     </script>
 </body>
