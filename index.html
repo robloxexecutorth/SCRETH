@@ -3,464 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RETH OFFICIAL — SCRIPT HUB</title>
+    <title>RETH OFFICIAL — THE ULTIMATE 3D HUB</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* การตั้งค่าพื้นฐาน */
-        body { 
-            background-color: #000000; 
-            color: #ffffff; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0px; 
-            -webkit-font-smoothing: antialiased; 
-            overflow-x: hidden; 
+        :root {
+            --bg-color: #000000;
+            --card-bg: rgba(5, 5, 5, 0.6);
+            --text-main: #ffffff;
+            --text-dim: #666666;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --modal-bg: rgba(10, 10, 10, 0.95);
+            --code-bg: #000000;
+            --code-text: #ffffff;
+            --discord-color: #5865F2;
         }
 
-        /* ปุ่ม Discord มุมขวาบน */
-        .discord-btn { 
-            position: fixed; 
-            top: 25px; 
-            right: 25px; 
-            background: #5865F2; 
-            color: white; 
-            padding: 12px 24px; 
-            border-radius: 14px; 
-            font-size: 11px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 100; 
-            text-decoration: none; 
-            box-shadow: 0 4px 20px rgba(88, 101, 242, 0.4); 
-        }
-        .discord-btn:hover { 
-            background: #4752c4; 
-            transform: translateY(-3px) scale(1.05); 
+        [data-theme="light"] {
+            --bg-color: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #000000;
+            --text-dim: #555555;
+            --border-color: #000000;
+            --modal-bg: #ffffff;
+            --code-bg: #ffffff;
+            --code-text: #000000;
         }
 
-        /* ส่วนหัวของเว็บไซต์ */
-        .reth-title { 
-            font-size: 85px; 
-            font-weight: 900; 
-            font-style: italic; 
-            text-transform: uppercase; 
-            letter-spacing: -0.05em; 
-            line-height: 1; 
+        body { margin: 0; background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; transition: 0.3s; overflow-x: hidden; position: relative; }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        
+        /* Typography */
+        .reth-title { font-size: clamp(60px, 10vw, 85px); font-weight: 900; font-style: italic; text-transform: uppercase; line-height: 1; letter-spacing: -0.05em; }
+        
+        /* Navigation & Controls */
+        .nav-controls { position: absolute; top: 25px; right: 25px; display: flex; gap: 10px; z-index: 1100; }
+        .t-btn { background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 10px; font-size: 9px; font-weight: 900; text-transform: uppercase; cursor: pointer; color: var(--text-dim); transition: 0.2s; backdrop-filter: blur(10px); }
+        .t-btn.active { background: var(--text-main); color: var(--bg-color); border-color: var(--text-main); }
+
+        .discord-btn {
+            background: var(--discord-color); color: white; padding: 10px 20px; border-radius: 12px;
+            font-size: 9px; font-weight: 900; text-transform: uppercase; display: flex; align-items: center;
+            transition: 0.3s; box-shadow: 0 0 15px rgba(88, 101, 242, 0.4); animation: discordGlow 2s infinite;
         }
-        .reth-title-underline { 
-            height: 2px; 
-            width: 120px; 
-            background-color: #2a2a2a; 
-            margin-top: -10px; 
-        }
-        .reth-subtitle { 
-            font-size: 10px; 
-            font-weight: 700; 
-            color: #555555; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5em; 
-            margin-top: 15px; 
-        }
-        .powered-by { 
-            font-size: 9px; 
-            font-weight: 800; 
-            color: #333333; 
-            text-transform: uppercase; 
-            letter-spacing: 0.2em; 
-            margin-top: 30px; 
+        @keyframes discordGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(88, 101, 242, 0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 20px rgba(88, 101, 242, 0.8); transform: scale(1.02); }
         }
 
-        /* ช่องค้นหา */
-        .search-container {
-            max-width: 600px;
-            margin: 0 auto 60px auto;
-        }
-        .reth-search { 
-            background: #050505; 
-            border: 1px solid #111111; 
-            border-radius: 20px; 
-            color: #ffffff; 
-            font-size: 13px; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            letter-spacing: 0.2em; 
-            width: 100%; 
-            padding: 26px; 
-            outline: none; 
-            transition: border-color 0.3s;
-        }
-        .reth-search:focus {
-            border-color: #333333;
-        }
-
-        /* การ์ดสคริปต์ */
+        /* --- CARD ANIMATION SYSTEM (NO REMOVAL) --- */
         .reth-card { 
-            background: #050505; 
-            border: 1px solid #111111; 
-            border-radius: 24px; 
-            transition: all 0.3s ease; 
-            height: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            position: relative; 
-            cursor: pointer; 
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 28px; 
+            transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.5s ease;
+            overflow: hidden; position: relative; cursor: pointer; backdrop-filter: blur(12px);
+            will-change: transform; transform: translateY(0) scale(1);
         }
+        
+        .card-pop { animation: cardEntrance 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+        @keyframes cardEntrance { 
+            from { opacity: 0; transform: translateY(40px) scale(0.92); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+
         .reth-card:hover { 
-            border-color: #333333; 
-            transform: translateY(-5px); 
-            background: #080808;
+            transform: translateY(-15px) scale(1.035); 
+            border-color: var(--text-main); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            z-index: 100;
         }
         
-        /* ป้าย Key สถานะต่างๆ */
-        .key-tag { 
-            position: absolute; 
-            top: 15px; 
-            left: 15px; 
-            font-size: 8px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            padding: 5px 10px; 
-            border-radius: 8px; 
-            letter-spacing: 0.05em; 
-            backdrop-filter: blur(8px); 
-            z-index: 10; 
-        }
-        .key-required { 
-            background-color: rgba(234, 179, 8, 0.15); 
-            color: #facc15; 
-            border: 1px solid rgba(234, 179, 8, 0.3); 
-        }
-        .keyless { 
-            background-color: rgba(34, 197, 94, 0.15); 
-            color: #4ade80; 
-            border: 1px solid rgba(34, 197, 94, 0.3); 
-        }
+        .reth-card img { opacity: 0.6; transition: 0.5s ease; }
+        .reth-card:hover img { opacity: 1; transform: scale(1.05); }
+
+        /* Search & Filter UI */
+        .search-container { display: flex; gap: 12px; max-width: 650px; margin: 0 auto 20px auto; position: relative; width: 100%; z-index: 100; }
+        .reth-search { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; color: var(--text-main); font-size: 14px; font-weight: 700; text-transform: uppercase; flex: 1; padding: 22px 28px; backdrop-filter: blur(15px); outline: none; }
+        .category-container { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; max-width: 1000px; margin: 0 auto 60px auto; position: relative; z-index: 50; align-items: center; }
+        .chip { background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 50px; font-size: 8px; font-weight: 900; text-transform: uppercase; cursor: pointer; color: var(--text-dim); transition: 0.2s; backdrop-filter: blur(10px); }
+        .chip:hover, .chip.active { background: var(--text-main); color: var(--bg-color); border-color: var(--text-main); }
+        .chip-plus { background: var(--text-main); color: var(--bg-color); border: none; padding: 8px 12px; border-radius: 50px; font-size: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .chip-plus:hover { transform: scale(1.1) rotate(90deg); }
+
+        /* Badges */
+        .ver-badge { position: absolute; top: 12px; left: 12px; width: 26px; height: 26px; z-index: 30; }
+        .status-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.8); border-radius: 8px; padding: 5px 10px; font-size: 8px; font-weight: 900; z-index: 10; display: flex; align-items: center; gap: 6px; color: white; }
+        .dot { height: 6px; width: 6px; border-radius: 50%; background: #22c55e; }
+        .key-badge { position: absolute; top: 12px; left: 45px; border-radius: 8px; padding: 5px 10px; font-size: 8px; font-weight: 900; z-index: 15; text-transform: uppercase; }
+        .bg-key { background: #ef4444; color: white; }
+        .bg-keyless { background: #eab308; color: black; }
         
-        .status-badge { 
-            background-color: rgba(0, 0, 0, 0.6); 
-            border: 1px solid #1a1a1a; 
-            border-radius: 8px; 
-            padding: 5px 12px; 
-            font-size: 9px; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-            backdrop-filter: blur(4px);
-        }
-        .status-dot { height: 6px; width: 6px; border-radius: 50%; }
-        .status-dot.working { background-color: #22c55e; box-shadow: 0 0 8px #22c55e; }
-        .status-dot.patched { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        /* Stats & Buttons */
+        .btn-copy-white { background: #ffffff; color: #000000; border: 1.5px solid var(--border-color); text-align: center; padding: 14px; border-radius: 14px; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer; margin-bottom: 15px; width: 100%; display: block; transition: 0.2s; }
+        .stats-row { display: flex; gap: 15px; font-size: 10px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px; }
+        .stats-row i { margin-right: 4px; }
+        .stats-row span { display: flex; align-items: center; }
 
-        /* สถิติและปุ่ม COPY */
-        .stats-row { 
-            display: flex; 
-            gap: 15px; 
-            font-size: 10px; 
-            font-weight: 800; 
-            color: #555555; 
-            margin-bottom: 12px; 
-            text-transform: uppercase; 
-        }
-        .stat-view { color: #888888; }
-        .stat-like { color: #4ade80; }
-        .stat-dislike { color: #f87171; }
-
-        .btn-copy-main { 
-            background-color: #ffffff; 
-            color: #000000; 
-            text-align: center; 
-            padding: 14px 0; 
-            border-radius: 14px; 
-            font-size: 11px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
-            transition: 0.2s; 
-            cursor: pointer; 
-            margin-bottom: 15px;
-        }
-        .btn-copy-main:hover { background-color: #e5e5e5; }
-
-        /* Modal UI */
-        .modal-content { 
-            background: #080808; 
-            border: 1px solid #1a1a1a; 
-            border-radius: 30px; 
-            max-width: 650px; 
-            width: 95%; 
-            max-height: 85vh; 
-            overflow-y: auto; 
-            padding: 40px;
-        }
-        .script-box { 
-            background: #000000; 
-            border: 1px solid #111111; 
-            border-radius: 16px; 
-            padding: 20px; 
-            font-family: 'Courier New', monospace; 
-            font-size: 13px; 
-            color: #777777; 
-            white-space: pre-wrap; 
-            word-break: break-all; 
-            margin-top: 20px; 
-        }
-
-        /* ปุ่ม VIEW WEB ที่เพิ่มเข้าไปใหม่ */
-        .btn-view-web {
-            border: 1px solid #1a1a1a;
-            color: #ffffff;
-            text-align: center;
-            padding: 14px 0;
-            border-radius: 14px;
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: 0.2s;
-            text-decoration: none;
-            display: block;
-        }
-        .btn-view-web:hover {
-            background-color: #111111;
-            border-color: #333333;
-        }
+        /* Modals & Code */
+        #modal, #trendingModal { backdrop-filter: blur(25px); position: fixed; inset: 0; z-index: 2000; }
+        .modal-inner { background: var(--modal-bg); border: 2px solid var(--border-color); border-radius: 40px; width: 100%; padding: 40px; position: relative; }
+        #mCode { background: var(--code-bg); color: var(--code-text); border: 2px solid var(--border-color); padding: 20px; border-radius: 18px; font-family: monospace; font-size: 10px; max-height: 180px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+        
+        /* Toast & Load More */
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #22c55e; color: white; padding: 12px 30px; border-radius: 50px; font-size: 11px; font-weight: 900; text-transform: uppercase; z-index: 3000; display: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .btn-load-more { background: transparent; border: 2px solid var(--border-color); color: var(--text-main); padding: 18px 50px; border-radius: 20px; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.4s; letter-spacing: 0.15em; backdrop-filter: blur(10px); }
+        .btn-load-more:hover { background: var(--text-main); color: var(--bg-color); }
+        
+        .reth-footer { margin-top: 40px; padding: 40px 0; border-top: 1px solid var(--border-color); text-align: center; }
+        .trending-item { background: var(--card-bg); border: 1px solid var(--border-color); padding: 12px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .trending-item:hover { background: var(--text-main); color: var(--bg-color); }
     </style>
 </head>
 <body class="p-6 md:p-16">
 
-    <a href="https://discord.gg/Yp2bXVvU9B" target="_blank" class="discord-btn">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/>
-        </svg>
-        Join Discord
-    </a>
+    <canvas id="bg-canvas"></canvas>
+    <div id="toast">Copied to Clipboard!</div>
 
-    <div class="max-w-7xl mx-auto">
-        <header class="py-16 md:py-24 text-center flex flex-col items-center">
-            <h1 class="reth-title">RETH</h1>
-            <div class="reth-title-underline"></div>
-            <p class="reth-subtitle">OFFICIAL SCRIPT HUB</p>
-            <p class="powered-by">Powered by Scriptblox</p>
+    <div class="nav-controls">
+        <button onclick="setTheme('dark')" id="dBtn" class="t-btn">Dark</button>
+        <button onclick="setTheme('light')" id="lBtn" class="t-btn">Light</button>
+        <a href="https://discord.gg/Yp2bXVvU9B" target="_blank" class="discord-btn"><i class="fa-brands fa-discord mr-2"></i> Discord</a>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <header class="py-20 text-center flex flex-col items-center">
+            <h1 class="reth-title"><span class="text-[12px] not-italic align-middle mr-2 tracking-widest opacity-50">BETA</span>RETH</h1>
+            <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.5em] mt-5">Official Script Hub</p>
         </header>
 
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="SEARCH FOR SCRIPTS..." class="reth-search">
+            <button onclick="toggleFilter()" class="t-btn !px-8 !py-0 !rounded-2xl">Filter</button>
+            <div id="filterMenu" class="absolute top-full mt-4 right-0 w-64 bg-[var(--modal-bg)] border border-[var(--border-color)] rounded-2xl p-6 hidden z-50 shadow-2xl">
+                <h3 class="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-4">Quick Filters</h3>
+                <label class="flex justify-between py-2 cursor-pointer text-[11px] font-bold uppercase"><span>Verified Only</span><input type="checkbox" id="fVer" onchange="filterRefresh()"></label>
+                <label class="flex justify-between py-2 cursor-pointer text-[11px] font-bold uppercase"><span>Keyless Only</span><input type="checkbox" id="fKey" onchange="filterRefresh()"></label>
+                <label class="flex justify-between py-2 cursor-pointer text-[11px] font-bold uppercase"><span>Universal Only</span><input type="checkbox" id="fUni" onchange="filterRefresh()"></label>
+            </div>
         </div>
 
-        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div class="category-container">
+            <button class="chip active" onclick="filterByCategory('', this)">All Games</button>
+            <button class="chip" onclick="filterByCategory('Blox Fruits', this)">Blox Fruits</button>
+            <button class="chip" onclick="filterByCategory('Pet Simulator 99', this)">Pet Sim 99</button>
+            <button class="chip" onclick="filterByCategory('Prison Life', this)">Prison Life</button>
+            <button class="chip" onclick="filterByCategory('Build a Boat for Treasure', this)">Build a Boat</button>
+            <button class="chip" onclick="filterByCategory('Fling Things and People', this)">Fling Things</button>
+            <button class="chip" onclick="filterByCategory('Brookhaven', this)">Brookhaven</button>
+            <button class="chip" onclick="filterByCategory('Murder Mystery 2', this)">MM2</button>
+            <button class="chip-plus" onclick="openTrending()"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <div id="scriptGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+        
+        <div class="flex justify-center py-24" id="loadMoreArea" style="display: none;">
+            <button onclick="loadMore()" class="btn-load-more">Load More Scripts</button>
+        </div>
+
+        <footer class="reth-footer">
+            <div class="flex flex-col items-center gap-3">
+                <p class="text-[10px] font-black uppercase text-zinc-500 tracking-[0.4em]">Powered By</p>
+                <a href="https://scriptblox.com" target="_blank" class="credit-link text-xl font-bold italic tracking-tighter">SCRIPT<span class="text-zinc-500">BLOX</span></a>
+                <p class="text-[9px] font-bold text-zinc-600 uppercase mt-4 tracking-widest">© 2026 RETH OFFICIAL — Crafted for Excellence</p>
             </div>
+        </footer>
     </div>
 
-    <div id="scriptModal" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden opacity-0">
-        <div class="modal-content relative">
-            <button onclick="closeModal()" class="absolute top-8 right-8 text-zinc-600 hover:text-white font-bold uppercase text-[10px] tracking-widest transition-colors">Close [X]</button>
-            
-            <h2 id="modalTitle" class="text-2xl font-black uppercase italic mb-2 tracking-tighter"></h2>
-            
-            <div id="modalStats" class="stats-row mb-3"></div>
-            
-            <p id="modalGame" class="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mb-10"></p>
-            
+    <div id="modal" class="fixed inset-0 hidden items-center justify-center p-6 bg-black/80 opacity-0 transition-opacity duration-300">
+        <div class="modal-inner max-w-2xl">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-[10px] font-black text-zinc-500 uppercase">Close [X]</button>
+            <h2 id="mTitle" class="text-2xl font-black italic uppercase mb-2"></h2>
+            <div id="mStatsRow" class="stats-row mb-6"></div>
+            <div id="modalImgArea" class="border-2 border-[var(--border-color)] rounded-2xl overflow-hidden aspect-video bg-black mb-6"><img id="mImg" src="" class="w-full h-full object-cover"></div>
             <div class="flex gap-4 mb-8">
-                <div onclick="copyFromModal()" id="modalCopyBtn" class="btn-copy-main flex-1 mb-0">COPY SCRIPT</div>
-                <a href="#" id="modalWebLink" target="_blank" class="btn-view-web flex-1">VIEW WEB</a>
+                <button onclick="copyFromModal()" class="bg-white text-black border-2 border-[var(--border-color)] flex-1 py-4 rounded-xl font-black text-[11px] uppercase transition hover:bg-zinc-200">Copy Script</button>
+                <a id="mLink" href="#" target="_blank" class="flex-1 border-2 border-[var(--border-color)] rounded-xl flex items-center justify-center text-[11px] font-black uppercase text-[var(--text-main)]">Source Link</a>
             </div>
+            <div id="mCode"></div>
+        </div>
+    </div>
 
-            <div class="space-y-3">
-                <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Source Code Output:</p>
-                <div id="modalScript" class="script-box"></div>
+    <div id="trendingModal" class="fixed inset-0 hidden items-center justify-center p-6 bg-black/80 opacity-0 transition-opacity duration-300">
+        <div class="modal-inner max-w-2xl">
+            <button onclick="closeTrending()" class="absolute top-8 right-8 text-[10px] font-black text-zinc-500 uppercase">Close [X]</button>
+            <h2 class="text-2xl font-black italic uppercase mb-6 tracking-tighter">Trending Game Hubs</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-[60vh] pr-2">
+                <div class="trending-item" onclick="filterByCategory('Be a Lucky Block', null); closeTrending()">Be a Lucky Block</div>
+                <div class="trending-item" onclick="filterByCategory('Steal a brainrot', null); closeTrending()">Steal a brainrot</div>
+                <div class="trending-item" onclick="filterByCategory('The Strongest Battlegrounds', null); closeTrending()">Strongest Battle</div>
+                <div class="trending-item" onclick="filterByCategory('Prison Life', null); closeTrending()">Prison Life</div>
+                <div class="trending-item" onclick="filterByCategory('Doors', null); closeTrending()">Doors</div>
+                <div class="trending-item" onclick="filterByCategory('Universal', null); closeTrending()">Universal Hub</div>
             </div>
         </div>
     </div>
 
     <script>
-        var scriptGridElement = document.getElementById('scriptGrid');
-        var modalElement = document.getElementById('scriptModal');
-        var searchInputBox = document.getElementById('searchInput');
-        var scriptsArrayData = [];
+        // --- 3D ENGINE (MAINTAINED) ---
+        const canvas = document.getElementById('bg-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const shapes = [];
 
-        // ฟังก์ชันดึงข้อมูลจาก Server
-        async function fetchScriptsFromServer(searchQuery) {
-            var finalBaseUrl = "";
-            
-            if (searchQuery) {
-                finalBaseUrl = "https://scriptblox.com/api/script/search?q=" + encodeURIComponent(searchQuery) + "&max=50";
-            } else {
-                finalBaseUrl = "https://scriptblox.com/api/script/fetch?page=1&max=50";
+        function init3D() {
+            renderer.setSize(window.innerWidth, window.innerHeight); camera.position.z = 35;
+            const geoPool = [new THREE.IcosahedronGeometry(2,0), new THREE.BoxGeometry(3,3,3), new THREE.TetrahedronGeometry(2.5)];
+            for(let i=0; i<45; i++) {
+                const mat = new THREE.MeshBasicMaterial({ color: 0x4f6b8f, wireframe: true, transparent: true, opacity: 0.15 });
+                const mesh = new THREE.Mesh(geoPool[Math.floor(Math.random()*3)], mat);
+                mesh.position.set((Math.random()-0.5)*100, (Math.random()-0.5)*80, (Math.random()-0.5)*50);
+                mesh.userData = { speedY: 0.02 + Math.random()*0.06, rot: Math.random()*0.01 };
+                scene.add(mesh); shapes.push(mesh);
             }
-            
-            var proxyServerUrl = "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(finalBaseUrl);
+        }
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            shapes.forEach(s => { 
+                s.position.y += s.userData.speedY; 
+                s.rotation.x += s.userData.rot; s.rotation.y += s.userData.rot; 
+                if(s.position.y > 40) s.position.y = -40; 
+            });
+            renderer.render(scene, camera);
+        }
 
+        // --- DATA LOGIC ---
+        let allScripts = []; let currentPage = 1; let currentQuery = "";
+        const verStar = `<svg viewBox="0 0 24 24" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><path d="M12 1L14.39 3.46L17.77 2.82L18.89 6.04L22.14 7.02L21.31 10.33L23 13.17L20.61 15.63L21.25 19.01L18.03 20.13L17.05 23.38L13.74 22.55L10.9 24.24L8.44 21.85L5.06 22.49L3.94 19.27L0.69 18.29L1.52 14.98L-0.17 12.14L2.22 9.68L1.58 6.3L4.8 5.18L5.78 1.93L9.09 2.76L11.93 1.07Z" fill="#1D9BF0"/><path d="M9.5 15.5l-3.5-3.5 1.4-1.4 2.1 2.1 5.6-5.6 1.4 1.4-7 7z" fill="white"/></svg>`;
+
+        async function fetchScripts(q = "", p = 1, append = false) {
+            if (!append) { document.getElementById('scriptGrid').innerHTML = ""; allScripts = []; }
+            currentQuery = q; currentPage = p;
+            const api = q ? `https://scriptblox.com/api/script/search?q=${encodeURIComponent(q)}&max=20&page=${p}` : `https://scriptblox.com/api/script/fetch?page=${p}&max=20`;
             try {
-                var response = await fetch(proxyServerUrl);
-                var jsonData = await response.json();
-                
-                if (jsonData && jsonData.result) {
-                    scriptsArrayData = jsonData.result.scripts || jsonData.result.docs || [];
-                    renderScriptsToUI(scriptsArrayData);
-                }
-            } catch (error) {
-                console.error("เกิดข้อผิดพลาด:", error);
-                scriptGridElement.innerHTML = '<p class="text-center text-zinc-700 uppercase font-black py-20">Failed to load scripts.</p>';
-            }
+                const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(api)}`);
+                const data = await res.json();
+                const newBatch = data.result.scripts || data.result.docs || [];
+                const oldLength = allScripts.length;
+                allScripts = [...allScripts, ...newBatch];
+                renderCards(newBatch, append, oldLength);
+                document.getElementById('loadMoreArea').style.display = (currentPage < (data.result.totalPages || 1)) ? 'flex' : 'none';
+            } catch (e) { console.error(e); }
         }
 
-        // ฟังก์ชันจัดรูปแบบตัวเลข
-        function formatNumberWithCommas(num) {
-            if (num === undefined || num === null) {
-                return "0";
-            }
-            return num.toLocaleString();
-        }
-
-        // ฟังก์ชัน Render การ์ด
-        function renderScriptsToUI(scriptsList) {
-            var placeholder = "https://via.placeholder.com/400x225/050505/222222?text=RETH+HUB";
-            var htmlOutput = "";
+        function renderCards(scripts, append, startIdx) {
+            const grid = document.getElementById('scriptGrid');
+            const fV = document.getElementById('fVer').checked, fK = document.getElementById('fKey').checked, fU = document.getElementById('fUni').checked;
             
-            if (scriptsList.length === 0) {
-                scriptGridElement.innerHTML = '<p class="text-center text-zinc-700 uppercase font-black col-span-full py-20">No scripts found.</p>';
-                return;
-            }
-
-            for (var i = 0; i < scriptsList.length; i++) {
-                var scriptItem = scriptsList[i];
-                var thumbUrl = placeholder;
-
-                if (scriptItem.image && !scriptItem.image.includes('http')) {
-                    thumbUrl = "https://scriptblox.com" + scriptItem.image;
-                } else if (scriptItem.game && scriptItem.game.imageUrl) {
-                    thumbUrl = scriptItem.game.imageUrl;
-                }
-
-                var keyBadgeClass = scriptItem.key ? "key-required" : "keyless";
-                var keyBadgeText = scriptItem.key ? "Key Required" : "Keyless";
-
-                htmlOutput += '<div class="reth-card p-6 group" onclick="openScriptDetailModal(' + i + ')">';
-                htmlOutput += '    <div class="relative aspect-video bg-zinc-950 rounded-2xl mb-5 overflow-hidden">';
-                htmlOutput += '        <div class="key-tag ' + keyBadgeClass + '">' + keyBadgeText + '</div>';
-                htmlOutput += '        <img src="' + thumbUrl + '" class="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition duration-700 ease-in-out">';
-                htmlOutput += '        <div class="absolute top-3 right-3 status-badge">';
-                
-                if (scriptItem.isPatched) {
-                    htmlOutput += '        <span class="status-dot patched"></span> Patched';
-                } else {
-                    htmlOutput += '        <span class="status-dot working"></span> Working';
-                }
-
-                htmlOutput += '        </div>';
-                htmlOutput += '    </div>';
-
-                htmlOutput += '    <div class="stats-row">';
-                htmlOutput += '        <span class="stat-view">👁 ' + formatNumberWithCommas(scriptItem.views) + '</span>';
-                htmlOutput += '        <span class="stat-like">👍 ' + formatNumberWithCommas(scriptItem.likeCount) + '</span>';
-                htmlOutput += '        <span class="stat-dislike">👎 ' + formatNumberWithCommas(scriptItem.dislikeCount) + '</span>';
-                htmlOutput += '    </div>';
-
-                htmlOutput += '    <div class="btn-copy-main" onclick="event.stopPropagation(); copyFromCard(' + i + ', this)">COPY LOADSTRING</div>';
-
-                htmlOutput += '    <div class="flex-grow">';
-                htmlOutput += '        <h3 class="text-sm font-black uppercase truncate mb-1 tracking-tight">' + scriptItem.title + '</h3>';
-                htmlOutput += '        <p class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest truncate">' + (scriptItem.game ? scriptItem.game.name : "Universal") + '</p>';
-                htmlOutput += '    </div>';
-                htmlOutput += '</div>';
-            }
-
-            scriptGridElement.innerHTML = htmlOutput;
-        }
-
-        // ฟังก์ชันเปิด Modal พร้อมใส่ข้อมูลลิ้งก์ Web
-        function openScriptDetailModal(index) {
-            var selectedScript = scriptsArrayData[index];
-            
-            document.getElementById('modalTitle').innerText = selectedScript.title;
-            document.getElementById('modalGame').innerText = selectedScript.game ? selectedScript.game.name : 'Universal Script';
-            document.getElementById('modalScript').innerText = selectedScript.script || "-- No Script Provided --";
-            
-            // 🔥 กำหนดลิ้งก์ให้กับปุ่ม VIEW WEB
-            document.getElementById('modalWebLink').href = "https://scriptblox.com/script/" + selectedScript.slug;
-            
-            document.getElementById('modalStats').innerHTML = 
-                '<span class="stat-view">' + formatNumberWithCommas(selectedScript.views) + ' VIEWS</span>' +
-                '<span class="stat-like">' + formatNumberWithCommas(selectedScript.likeCount) + ' LIKES</span>' +
-                '<span class="stat-dislike">' + formatNumberWithCommas(selectedScript.dislikeCount) + ' DISLIKES</span>';
-
-            modalElement.classList.remove('hidden');
-            setTimeout(function() {
-                modalElement.classList.add('opacity-100');
-            }, 10);
-            document.body.style.overflow = 'hidden';
-        }
-
-        // ฟังก์ชันปิด Modal
-        function closeModal() {
-            modalElement.classList.remove('opacity-100');
-            setTimeout(function() {
-                modalElement.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }, 300);
-        }
-
-        // ฟังก์ชันคัดลอกภายใน Modal
-        function copyFromModal() {
-            var codeText = document.getElementById('modalScript').innerText;
-            var button = document.getElementById('modalCopyBtn');
-            
-            navigator.clipboard.writeText(codeText).then(function() {
-                var originalLabel = button.innerText;
-                button.innerText = "COPIED TO CLIPBOARD!";
-                button.style.backgroundColor = "#22c55e";
-                button.style.color = "#ffffff";
-                
-                setTimeout(function() {
-                    button.innerText = originalLabel;
-                    button.style.backgroundColor = "#ffffff";
-                    button.style.color = "#000000";
-                }, 2000);
+            const filtered = scripts.filter(s => {
+                const mVer = !fV || s.verified;
+                const mKey = !fK || s.key === false;
+                const mUni = !fU || (s.game.name.toLowerCase().includes('universal') || s.game.name.toLowerCase().includes('all games'));
+                return mVer && mKey && mUni;
             });
+
+            const html = filtered.map((s, i) => {
+                const thumb = s.image && !s.image.includes('http') ? `https://scriptblox.com${s.image}` : (s.game.imageUrl || "https://via.placeholder.com/400x225");
+                const finalIdx = startIdx + i;
+                return `
+                <div class="reth-card p-6 card-pop" onclick="openModal(${finalIdx})" style="animation-delay: ${(i % 20) * 0.06}s">
+                    <div class="relative aspect-video rounded-2xl overflow-hidden mb-5 bg-zinc-900 border-2 border-[var(--border-color)]">
+                        ${s.verified ? `<div class="ver-badge">${verStar}</div>` : ""}
+                        <div class="key-badge ${s.key ? 'bg-key' : 'bg-keyless'}">${s.key ? 'Key' : 'Keyless'}</div>
+                        <div class="status-badge"><span class="dot"></span> Working</div>
+                        <img src="${thumb}" loading="lazy" class="w-full h-full object-cover">
+                    </div>
+                    <div class="btn-copy-white" onclick="event.stopPropagation(); quickCopy(${finalIdx})">Copy Script</div>
+                    <div class="stats-row">
+                        <span><i class="fa-solid fa-eye"></i> ${s.views.toLocaleString()}</span>
+                        <span><i class="fa-solid fa-thumbs-up"></i> ${s.likeCount || 0}</span>
+                        <span><i class="fa-solid fa-thumbs-down"></i> ${s.dislikeCount || 0}</span>
+                    </div>
+                    <h3 class="text-sm font-black uppercase truncate">${s.title}</h3>
+                    <p class="text-[9px] text-zinc-500 font-bold uppercase truncate mt-1">${s.game.name}</p>
+                </div>`;
+            }).join('');
+
+            if (append) grid.insertAdjacentHTML('beforeend', html);
+            else grid.innerHTML = html;
         }
 
-        // ฟังก์ชันคัดลอกจากหน้าการ์ด
-        function copyFromCard(index, button) {
-            var codeText = scriptsArrayData[index].script;
-            
-            navigator.clipboard.writeText(codeText).then(function() {
-                var originalLabel = button.innerText;
-                button.innerText = "COPIED!";
-                button.style.backgroundColor = "#22c55e";
-                button.style.color = "#ffffff";
-                
-                setTimeout(function() {
-                    button.innerText = originalLabel;
-                    button.style.backgroundColor = "#ffffff";
-                    button.style.color = "#000000";
-                }, 1500);
-            });
+        // --- CORE FUNCTIONS (NO REMOVAL) ---
+        function filterRefresh() { document.getElementById('scriptGrid').innerHTML = ""; renderCards(allScripts, false, 0); }
+        function filterByCategory(cat, btn) {
+            if(btn) { document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); btn.classList.add('active'); }
+            document.getElementById('searchInput').value = cat; fetchScripts(cat, 1, false);
         }
+        function setTheme(m) {
+            document.body.setAttribute('data-theme', m);
+            document.getElementById('dBtn').classList.toggle('active', m === 'dark');
+            document.getElementById('lBtn').classList.toggle('active', m === 'light');
+            localStorage.setItem('reth-theme', m);
+            if(shapes.length) shapes.forEach(s => s.material.color.set(m === 'light' ? 0x000000 : 0x4f6b8f));
+        }
+        function openModal(i) {
+            const s = allScripts[i];
+            document.getElementById('mTitle').innerText = s.title;
+            document.getElementById('mImg').src = s.image && !s.image.includes('http') ? `https://scriptblox.com${s.image}` : (s.game.imageUrl || "");
+            document.getElementById('mStatsRow').innerHTML = `
+                <span><i class="fa-solid fa-eye"></i> ${s.views.toLocaleString()}</span>
+                <span><i class="fa-solid fa-thumbs-up"></i> ${s.likeCount || 0}</span>
+                <span><i class="fa-solid fa-thumbs-down"></i> ${s.dislikeCount || 0}</span>
+                <span class="ml-auto">Game: ${s.game.name}</span>`;
+            document.getElementById('mCode').innerText = s.script || "-- No Code --";
+            document.getElementById('mLink').href = "https://scriptblox.com/script/" + s.slug;
+            const m = document.getElementById('modal'); m.classList.replace('hidden', 'flex'); setTimeout(() => m.classList.add('opacity-100'), 10);
+        }
+        function closeModal() { const m = document.getElementById('modal'); m.classList.remove('opacity-100'); setTimeout(() => m.classList.replace('flex', 'hidden'), 300); }
+        function openTrending() { const m = document.getElementById('trendingModal'); m.classList.replace('hidden', 'flex'); setTimeout(() => m.classList.add('opacity-100'), 10); }
+        function closeTrending() { const m = document.getElementById('trendingModal'); m.classList.remove('opacity-100'); setTimeout(() => m.classList.replace('flex', 'hidden'), 300); }
+        function quickCopy(i) { navigator.clipboard.writeText(allScripts[i].script); showToast(); }
+        function copyFromModal() { navigator.clipboard.writeText(document.getElementById('mCode').innerText); showToast(); }
+        function showToast() { const t = document.getElementById('toast'); t.style.display='block'; setTimeout(()=>t.style.display='none', 2000); }
+        function loadMore() { fetchScripts(currentQuery, currentPage + 1, true); }
+        function toggleFilter() { document.getElementById('filterMenu').classList.toggle('hidden'); }
 
-        // ระบบค้นหา
-        var searchTimer;
-        searchInputBox.addEventListener('input', function(event) {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(function() {
-                fetchScriptsFromServer(event.target.value);
-            }, 500);
-        });
-
-        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
-        window.onload = function() {
-            fetchScriptsFromServer("");
-        };
+        window.onload = () => { init3D(); animate3D(); setTheme(localStorage.getItem('reth-theme') || 'dark'); fetchScripts(); };
+        let db; document.getElementById('searchInput').addEventListener('input', (e) => { clearTimeout(db); db = setTimeout(() => fetchScripts(e.target.value, 1, false), 500); });
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
     </script>
 </body>
 </html>
